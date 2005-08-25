@@ -43,7 +43,8 @@ class Key:
         """Deletes a value of the current key (Can't delete the None value!)"""
         winreg.DeleteValue(self.handle, name)
     def enumKeys(self):
-        """Creates a generator to enumerate child keys."""
+        """Creates a generator that enumerates the names of child keys,
+        suitable for list(), tuple(), or set()."""
         n = 0
         endoflist = False
         while not endoflist:
@@ -56,7 +57,8 @@ class Key:
             else:
                 yield key
     def enumValues(self):
-        """Creates a generator to enumerate values. (Including the implied None.)"""
+        """Creates a generator that enumerates name/value pairs of the values
+        (as the 2-tuple (key, value), suitable for dict()."""
         n = 0
         endoflist = False
         key = ""
@@ -69,7 +71,7 @@ class Key:
                 endoflist = True
             else:
                 if not endoflist:
-                    yield key[0]
+                    yield (key[0], key[1])
     def flush(self):
         """Ensures that this key is written to disk."""
         winreg.FlushKey(self.handle)
