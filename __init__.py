@@ -34,7 +34,7 @@ class Key:
         return "<Registry Key: %s>" % self.getPath(False)
     def __str__(self):
         return self.getPath(True)
-    def getPath(abbrev=True):
+    def getPath(self, abbrev=True):
         return "%s\\%s" % (self.parent.getPath(abbrev), self.myname)
     def deleteKey(self, subkey):
         """Deletes a subkey of the current key."""
@@ -49,23 +49,27 @@ class Key:
         while not endoflist:
             try:
                 key = winreg.EnumKey(self.handle, n)
+                n += 1
             except EnvironmentError:
                 #We'll skip this, just the end of the list
                 endoflist = True
             else:
-                yield value
+                yield key
     def enumValues(self):
         """Creates a generator to enumerate values. (Including the implied None.)"""
         n = 0
         endoflist = False
+        key = ""
         while not endoflist:
             try:
                 key = winreg.EnumValue(self.handle, n)
+                n += 1
             except EnvironmentError:
                 #We'll skip this, just the end of the list
                 endoflist = True
             else:
-                yield value
+                if not endoflist:
+                    yield key[0]
     def flush(self):
         """Ensures that this key is written to disk."""
         winreg.FlushKey(self.handle)
@@ -111,12 +115,12 @@ class Key:
 
 class HKeyClassesRoot(Key):
     """A subclass of Key to encapsulate HKEY_CLASSES_ROOT."""
-    def __init__(self, curkey=None, subkey=None, hkey=winreg.HKEY_CLASSES_ROOT):
+    def __init__(self, *foo, **bar):
         """Initializer. All arguments are ignored."""
         self.handle = winreg.HKEY_CLASSES_ROOT
     def __del__(self):
         pass
-    def getPath(abbrev=True):
+    def getPath(self, abbrev=True):
         if (abbrev):
             return "HKCR"
         else:
@@ -124,7 +128,7 @@ class HKeyClassesRoot(Key):
 
 class HKeyCurrentConfig(Key):
     """A subclass of Key to encapsulate HKEY_CURRENT_CONFIG."""
-    def __init__(self, curkey=None, subkey=None, hkey=winreg.HKEY_CURRENT_CONFIG):
+    def __init__(self, *foo, **bar):
         """Initializer. All arguments are ignored."""
         ver = sys.getwindowsversion()
         if (not ( ver[3] == sys.VER_PLATFORM_WIN32_WINDOWS or
@@ -136,7 +140,7 @@ class HKeyCurrentConfig(Key):
         self.handle = winreg.HKEY_CURRENT_CONFIG
     def __del__(self):
         pass
-    def getPath(abbrev=True):
+    def getPath(self, abbrev=True):
         if (abbrev):
             return "HKCC"
         else:
@@ -144,12 +148,12 @@ class HKeyCurrentConfig(Key):
 
 class HKeyCurrentUser(Key):
     """A subclass of Key to encapsulate HKEY_CURRENT_USER."""
-    def __init__(self, curkey=None, subkey=None, hkey=winreg.HKEY_CURRENT_USER):
+    def __init__(self, *foo, **bar):
         """Initializer. All arguments are ignored."""
         self.handle = winreg.HKEY_CURRENT_USER
     def __del__(self):
         pass
-    def getPath(abbrev=True):
+    def getPath(self, abbrev=True):
         if (abbrev):
             return "HKCU"
         else:
@@ -157,7 +161,7 @@ class HKeyCurrentUser(Key):
 
 class HKeyDynData(Key):
     """A subclass of Key to encapsulate HKEY_DYN_DATA."""
-    def __init__(self, curkey=None, subkey=None, hkey=winreg.HKEY_DYN_DATA):
+    def __init__(self, *foo, **bar):
         """Initializer. All arguments are ignored."""
         ver = sys.getwindowsversion()
         if (not ( ver[3] == sys.VER_PLATFORM_WIN32_WINDOWS )):
@@ -167,7 +171,7 @@ class HKeyDynData(Key):
         self.handle = winreg.HKEY_DYN_DATA
     def __del__(self):
         pass
-    def getPath(abbrev=True):
+    def getPath(self, abbrev=True):
         if (abbrev):
             return "HKDD"
         else:
@@ -175,12 +179,12 @@ class HKeyDynData(Key):
 
 class HKeyLocalMachine(Key):
     """A subclass of Key to encapsulate HKEY_LOCAL_MACHINE."""
-    def __init__(self, curkey=None, subkey=None, hkey=winreg.HKEY_LOCAL_MACHINE):
+    def __init__(self, *foo, **bar):
         """Initializer. All arguments are ignored."""
         self.handle = winreg.HKEY_LOCAL_MACHINE
     def __del__(self):
         pass
-    def getPath(abbrev=True):
+    def getPath(self, abbrev=True):
         if (abbrev):
             return "HKLM"
         else:
@@ -188,7 +192,7 @@ class HKeyLocalMachine(Key):
 
 class HKeyPerformanceData(Key):
     """A subclass of Key to encapsulate HKEY_DYN_DATA."""
-    def __init__(self, curkey=None, subkey=None, hkey=winreg.HKEY_PERFORMANCE_DATA):
+    def __init__(self, *foo, **bar):
         """Initializer. All arguments are ignored."""
         ver = sys.getwindowsversion()
         if (not ( ver[3] == sys.VER_PLATFORM_WIN32_NT )):
@@ -198,7 +202,7 @@ class HKeyPerformanceData(Key):
         self.handle = winreg.HKEY_PERFORMANCE_DATA
     def __del__(self):
         pass
-    def getPath(abbrev=True):
+    def getPath(self, abbrev=True):
         if (abbrev):
             return "HKPD"
         else:
@@ -209,12 +213,12 @@ class HKeyPerformanceData(Key):
 
 class HKeyUsers(Key):
     """A subclass of Key to encapsulate HKEY_LOCAL_MACHINE."""
-    def __init__(self, curkey=None, subkey=None, hkey=winreg.HKEY_USERS):
+    def __init__(self, *foo, **bar):
         """Initializer. All arguments are ignored."""
         self.handle = winreg.HKEY_USERS
     def __del__(self):
         pass
-    def getPath(abbrev=True):
+    def getPath(self, abbrev=True):
         if (abbrev):
             return "HKU"
         else:
