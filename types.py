@@ -3,7 +3,7 @@ pyreg.types - Defines classes to wrap the registry's types
 By Jamie Bliss
 Last modified Augest 26, 2005
 """
-from pyreg import *
+##__all__=('Binary','DWORD','DWORD_BigEndian','DWORD_LittleEndian','ExpandingString','Link','MultiString','ResourceList','String','rNone')
 class Binary(str):
 	"""MSDN: "Binary data in any form."
 	

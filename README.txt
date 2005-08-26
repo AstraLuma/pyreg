@@ -1,3 +1,11 @@
+Modules
+=======
+There are several modules defined by pyreg:
+* pyreg - basic, imports all of the others
+* pyreg.key - defines the base Key class.
+* pyreg.types - defines type classes used to wrap the registry's types
+* pyreg.roots - defines HKEY_CURRENT_USER et al
+
 Interfaces
 ==========
 There are several classes exposed. The primary one is the 
