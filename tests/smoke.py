@@ -89,9 +89,17 @@ target = HKEY_CURRENT_USER.keys['test']
 print "The Types Test Suite, Part II: Writting"
 print "I will write predefined values in to",target,"."
 print "You are to report errors that appear."
+from time import *
+n = int(time())
 print "Ready? Begin."
 for v in type_values:
-    target[v] = type_values[v]
+    if n & 1:
+        print v,"(k[v])"
+        target[v] = type_values[v]
+    else:
+        print v,"(k.values[v])"
+        target.values[v] = type_values[v]
+    n += 1
 
 pause()
 print "Good-bye!"
