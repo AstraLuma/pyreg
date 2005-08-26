@@ -4,8 +4,8 @@ By Jamie Bliss
 Last modified Augest 26, 2005
 """
 import _winreg
-from pyreg.key import *
-##__all__ = ('HKEY_CLASSES_ROOT','HKEY_CURRENT_CONFIG','HKEY_CURRENT_USER','HKEY_DYN_DATA','HKEY_LOCAL_MACHINE','HKEY_PERFORMANCE_DATA','HKEY_USERS')
+from pyreg.key import Key
+__all__ = ('HKEY_CLASSES_ROOT','HKEY_CURRENT_CONFIG','HKEY_CURRENT_USER','HKEY_DYN_DATA','HKEY_LOCAL_MACHINE','HKEY_PERFORMANCE_DATA','HKEY_USERS')
 
 class _HKeyClassesRoot(Key):
 	"""A subclass of Key to encapsulate HKEY_CLASSES_ROOT."""

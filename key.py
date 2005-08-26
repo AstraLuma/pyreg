@@ -8,8 +8,8 @@ import datetime
 import sys
 import types
 import UserDict
-from pyreg.types import *
-##__all__=('Key')
+from pyreg.types import Binary,DWORD,DWORD_BigEndian,DWORD_LittleEndian,ExpandingString,Link,MultiString,ResourceList,String,rNone
+__all__=('Key')
 
 def _Registry2Object(t,v):
 	"""_Registry2Object(t,v) -> object
