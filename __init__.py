@@ -1,66 +1,18 @@
-"""Defines classes to interface with the registry via _winreg.
-
-Interfaces
-==========
-There are several classes exposed. The primary one is the Key class. Note that
-strings are always converted to unicode. Regular strings (str class) are used
-for binary buffers.
-
-The Key Class
--------------
-The Key object wraps a registry key in a convenient way. It has several methods:
-* akey.getPath(abbrev=True)
-    Returns the path (eg, "HKCU\Software\Python 2.4") of the key
-    wrapped by akey. If abbrev is False, the full root (eg, HKEY_CURRENT_USER)
-    is used.
-* akey.flush()
-    Calls _winreg.FlushKey(). See
-    <http://msdn.microsoft.com/library/en-us/sysinfo/base/regflushkey.asp>
-* akey.getMTime()
-    Gets a datetime.datetime representing the time the key was laste modified.
-* akey.loadKey(key, file)
-    Opposite of saveKey().
-    Loads subkey key from file file. Only valid on HKEY_LOCAL_MACHINE and
-    HKEY_USERS.
-* akey.saveKey(filename)
-    Opposite of loadKey(). Saves the currrent key to file filename.
-* akey.openKey(key, sam=131097)
-    Identical to akey.keys[key], except an error is generated if the
-    key does not exist. Also allows you to specify permissions in sam.
-    Use the KEY_* constants for sam. See
-    <http://msdn.microsoft.com/library/en-us/sysinfo/base/registry_key_security_and_access_rights.asp>
-    for details.
-
-The Key class also has several operators as shortcuts to using Key.values and
-Key.keys.
-
-* / - akey/sub
-    Gets the subkey sub of akey. akey must be a Key object, sub must be a
-    string.
-* [] - akey[val]
-    Returns a value of akey. val must be a string.
-* in - childkey in akey
-    Tests to see if childkey is a direct descendent of akey. childkey may be
-    a Key instance or a string.
-
-Key subclasses
-=============
-"""
-import _winreg as winreg
+"""Defines classes to interface with the registry."""
+import _winreg
 import datetime
-from datetime import timedelta, date, time, datetime
 import sys
-from types import *
-from UserDict import DictMixin
+import types
+import UserDict
 
-class pyregException(Exception):
-	"""An error occuried in the pyreg module."""
-class pyregWarning(RuntimeWarning, UserWarning):
-	"""A warning occuried in the pyreg module."""
-	
-class HKEYWrongOSVersion(pyregException):
-	"""The requested predefined key is not available in this version of Windows."""
-	key = 0
+##class pyregException(Exception):
+##	"""An error occuried in the pyreg module."""
+##class pyregWarning(RuntimeWarning, UserWarning):
+##	"""A warning occuried in the pyreg module."""
+##	
+##class HKEYWrongOSVersion(pyregException):
+##	"""The requested predefined key is not available in this version of Windows."""
+##	key = 0
 
 class Binary(str):
 	"""MSDN: "Binary data in any form."
@@ -115,8 +67,8 @@ class MultiString(list):
 
 	Encapsulates REG_MULTI_SZ; based on list.
 	Make sure you only pass strings to it, it will raise a TypeError otherwise."""
-	def __init__(self,seq=False):
-		if seq is not False:
+	def __init__(self,seq=None):
+		if seq is not None:
 			list.__init__(self, seq)
 			for i in self:
 				if not isinstance(i, basestring): raise TypeError
@@ -155,95 +107,124 @@ class String(unicode):
 	pass
 
 def _Registry2Object(t,v):
-	"""Converts the given object and registry type to a registry type object."""
-	if t == winreg.REG_BINARY:
+	"""_Registry2Object(t,v) -> object
+	
+	Converts the given object and registry type to a registry type object."""
+	if t == _winreg.REG_BINARY:
 		return Binary(v)
-	elif t == winreg.REG_DWORD:
+	elif t == _winreg.REG_DWORD:
 		return DWORD(v)
-	elif t == winreg.REG_DWORD_LITTLE_ENDIAN:
+	elif t == _winreg.REG_DWORD_LITTLE_ENDIAN:
 		return DWORD_LittleEndian(v)
-	elif t == winreg.REG_DWORD_BIG_ENDIAN:
+	elif t == _winreg.REG_DWORD_BIG_ENDIAN:
 		return DWORD_BigEndian(v)
-	elif t == winreg.REG_EXPAND_SZ:
+	elif t == _winreg.REG_EXPAND_SZ:
 		return ExpandingString(v)
-	elif t == winreg.REG_LINK:
+	elif t == _winreg.REG_LINK:
 		return Link(v)
-	elif t == winreg.REG_MULTI_SZ:
+	elif t == _winreg.REG_MULTI_SZ:
 		return MultiString(v)
-	elif t == winreg.REG_NONE:
+	elif t == _winreg.REG_NONE:
 		return rNone(v)
-	elif t == winreg.REG_RESOURCE_LIST:
+	elif t == _winreg.REG_RESOURCE_LIST:
 		return ResourceList(v)
-	elif t == winreg.REG_SZ:
+	elif t == _winreg.REG_SZ:
 		return String(v)
 	else:
 		# Assume REG_NONE
 		return rNone(v)
 
 def _Object2Registry(v):
-	"""Converts the given registry type object to a tuple containing a winreg-compatible object and a type.
+	"""_Object2Registry(v) -> (object, int)
+	
+	Converts the given registry type object to a tuple containing a _winreg-compatible object and a type.
 	You can also pass some native types, as follows:
-	+ basestring\t->\tREG_SZ
-	+ list, tuple, set, enumerate, frozenset, generator, xrange\t->\tREG_MULTI_SZ
-	+ buffer\t->\tREG_BINARY"""
+	+ basestring -> REG_SZ
+	+ list, tuple, set, enumerate, frozenset, generator -> REG_MULTI_SZ
+	+ buffer -> REG_BINARY"""
 	#We avoid inheritance problems by checking them in the reverse order they were defined
 	if isinstance(v, String):
-		return (v, winreg.REG_SZ)
+		return (v, _winreg.REG_SZ)
 	elif isinstance(v, ResourceList):
-		return (v, winreg.REG_RESOURCE_LIST)
+		return (v, _winreg.REG_RESOURCE_LIST)
 	elif isinstance(v, rNone):
-		return (v, winreg.REG_NONE)
+		return (v, _winreg.REG_NONE)
 	elif isinstance(v, MultiString):
-		return (v, winreg.REG_MULTI_SZ)
+		return (v, _winreg.REG_MULTI_SZ)
 	elif isinstance(v, Link):
-		return (v, winreg.REG_LINK)
+		return (v, _winreg.REG_LINK)
 	elif isinstance(v, ExpandingString):
-		return (v,winreg.REG_EXPAND_SZ)
+		return (v,_winreg.REG_EXPAND_SZ)
 	elif isinstance(v, DWORD_BigEndian):
-		return (v, winreg.REG_DWORD_BIG_ENDIAN)
+		return (v, _winreg.REG_DWORD_BIG_ENDIAN)
 	elif isinstance(v, DWORD_LittleEndian):
-		return (v, winreg.REG_DWORD_LITTLE_ENDIAN)
+		return (v, _winreg.REG_DWORD_LITTLE_ENDIAN)
 	elif isinstance(v, DWORD):
-		return (v, winreg.REG_DWORD)
+		return (v, _winreg.REG_DWORD)
 	elif isinstance(v, Binary):
-		return (v, winreg.REG_BINARY)
+		return (v, _winreg.REG_BINARY)
 	# These are conversions from native types
 	elif isinstance(v, basestring):
-		return (String(v), winreg.REG_SZ)
+		return (String(v), _winreg.REG_SZ)
 	elif ( isinstance(v, list) or isinstance(v, tuple) or isinstance(v, set) or
-               isinstance(v, enumerate) or isinstance(v, frozenset) or
-               isinstance(v, GeneratorType) ):
-		return (MultiString(v), winreg.REG_MULTI_SZ)
+		isinstance(v, enumerate) or isinstance(v, frozenset) or
+		isinstance(v, types.GeneratorType) ):
+		return (MultiString(v), _winreg.REG_MULTI_SZ)
 	elif isinstance(v, buffer):
-		return (Binary(v), winreg.REG_BINARY)
+		return (Binary(v), _winreg.REG_BINARY)
 	else:
 		# Assume REG_NONE
-		return (rNone(v), winreg.REG_NONE)
+		return (rNone(v), _winreg.REG_NONE)
 
-class _RegValues(DictMixin):
-	__slots__=['parent']
+class _RegValues(UserDict.DictMixin):
+	"""A dictionary wrapping the values of the key that created it. Don't
+	instantiate yourself, use akey.values. Note that while it is a full
+	dictionary, many of the methods don't make sense (eg, push() and pop())."""
+	__slots__=('parent')
 	def __init__(self,parent):
 		self.parent=parent
 	def __len__(self):
-		info = winreg.QueryInfoKey(self.parent.handle)
+		"""x.__len__() <==> len(x)
+		
+		Returns the number of values in this key."""
+		info = _winreg.QueryInfoKey(self.parent.handle)
 		return info[1]
 	def __getitem__(self,key):
-		val = winreg.QueryValueEx(self.parent.handle, key)
+		"""x.__getitem__(y) <==> x[y]
+		
+		Returns the contents of the given value, or creates a new one."""
+		try:
+			val = _winreg.QueryValueEx(self.parent.handle, key)
+		except WindowsError:
+			raise KeyError
 		return _Registry2Object(val[1],val[0]);
 	def __setitem__(self,key,value):
+		"""x.__setitem__(i, y) <==> x[i]=y
+		
+		Sets the contents of the given value."""
 		t = _Object2Registry(value)
-		winreg.SetValueEx(self.parent.handle, key, 0, t[1], t[0])
+		_winreg.SetValueEx(self.parent.handle, key, 0, t[1], t[0])
 	def __delitem__(self, key):
-		winreg.DeleteValue(self.parent.handle, key)
+		"""x.__delitem__(y) <==> del x[y]
+		
+		Deletes the given value."""
+		_winreg.DeleteValue(self.parent.handle, key)
 	def keys(self):
+		"""k.keys() -> list
+		
+		Returns a list of subkeys.
+		use iter() instead, this just calls that."""
 		return list(self.__iter__())
 	def __iter__(self):
+		"""x.__iter__() <==> iter(x)
+		
+		Returns a generator that enumerates the names of the values."""
 		n = 0
 		endoflist = False
 		key = ""
 		while not endoflist:
 			try:
-				key = winreg.EnumValue(self.parent.handle, n)
+				key = _winreg.EnumValue(self.parent.handle, n)
 				n += 1
 			except EnvironmentError:
 				endoflist = True
@@ -252,46 +233,71 @@ class _RegValues(DictMixin):
 				if not endoflist:
 					yield key[0]
 	def iteritems(self):
+		"""x.iteritems() -> generator
+		
+		Returns a generator that enumerates the names & contents of the values."""
 		n = 0
 		endoflist = False
 		key = ""
 		while not endoflist:
 			try:
-				key = winreg.EnumValue(self.parent.handle, n)
+				key = _winreg.EnumValue(self.parent.handle, n)
 				n += 1
 			except EnvironmentError:
 				endoflist = True
 				raise StopIteration
 			else:
 				if not endoflist:
-					yield key[1]
+					yield (key[0], _Registry2Object(val[2],val[1]))
 	def __contains__(self, item):
+		"""v.__contains__(s) <==> s in v
+		
+		True if the given value exists."""
 		try:
-			winreg.QueryValueEx(self.parent.handle, item)
+			_winreg.QueryValueEx(self.parent.handle, item)
 		except WindowsError:
 			return False
 		else:
 			return true
 
-class _RegKeys(DictMixin):
-	__slots__=['parent']
+class _RegKeys(UserDict.DictMixin):
+	"""A dictionary wrapping the subkeys of the key that created it. Don't
+	instantiate yourself, use akey.keys. Note that while it is a full
+	dictionary, many of the methods don't make sense (eg, push() and pop())."""
+	__slots__=('parent')
 	def __init__(self,parent):
 		self.parent=parent
 	def __len__(self):
-		info = winreg.QueryInfoKey(self.parent.handle)
+		"""x.__len__() <==> len(x)
+		
+		Returns the number of subkeys in this key."""
+		info = _winreg.QueryInfoKey(self.parent.handle)
 		return info[0]
 	def __getitem__(self,key):
+		"""x.__getitem__(y) <==> x[y]
+		
+		Returns the Key of the given subkey, or creates a new one."""
 		return Key(self.parent,key)
 	def __delitem__(self, key):
-		winreg.DeleteKey(self.parent.handle, key)
+		"""x.__delitem__(y) <==> del x[y]
+		
+		Deletes the given subkey."""
+		_winreg.DeleteKey(self.parent.handle, key)
 	def keys(self):
+		"""k.keys() -> list
+		
+		Returns a list of subkeys.
+		use iter() instead, this just calls that."""
 		return list(self.__iter__())
 	def __iter__(self):
+		"""x.__iter__() <==> iter(x)
+		
+		Returns a generator that enumerates the names of the subkeys."""
 		n = 0
 		endoflist = False
 		while not endoflist:
 			try:
-				key = winreg.EnumKey(self.parent.handle, n)
+				key = _winreg.EnumKey(self.parent.handle, n)
 				n += 1
 			except EnvironmentError:
 				endoflist = True
@@ -299,15 +305,18 @@ class _RegKeys(DictMixin):
 			else:
 				yield key
 	def __contains__(self, item):
+		"""k.__contains__(s) <==> s in k
+		
+		True if the given subkey exists."""
 		try:
-			hkey = winreg.OpenKey(self.parent.handle, key, 0, sam)
+			hkey = _winreg.OpenKey(self.parent.handle, key, 0, sam)
 		except WindowsError:
 			return False
 		else:
 			return true
 
 class Key(object):
-	"""The basic registry class."""
+	"""Wraps a registry key in a convenient way."""
 	__slots__=('handle','parent','myname','values','keys')
 	def __init__(self, curkey=None, subkey='', hkey=None):
 		"""Initializer. Don't pass anything to hkey, it is used internally."""
@@ -315,7 +324,7 @@ class Key(object):
 		if hkey is not None:
 			self.handle=hkey
 		else:
-			self.handle = winreg.CreateKey(curkey.handle, subkey)
+			self.handle = _winreg.CreateKey(curkey.handle, subkey)
 		self.parent=curkey
 		self.myname=subkey
 		self.values = _RegValues(self)
@@ -327,65 +336,100 @@ class Key(object):
 		try: del self.keys
 		except: pass
 		try:
-			winreg.CloseKey(self.handle)
+			_winreg.CloseKey(self.handle)
 			print "Key closed"
 		except: pass
 	def __repr__(self):
+		"""x.__repr__() <==> repr(x)"""
 		return "<Registry Key: %s>" % self.getPath(False)
 	def __str__(self):
-		"""Returns the path of this key."""
+		"""x.__str__() <==> str(x)
+		
+		Returns the path of this key."""
 		return self.getPath(True)
 	def __div__(self, other):
-		"""Not actually division, gets the subkey other (string).
+		"""x.__div__(y) <==> x/y
+		
+		Not actually division,. Gets the subkey other (string or Key).
 		Equivelent to self.keys[other]"""
 		return self.keys[other]
 	def __truediv__(self, other):
-		"""See Key.__div__"""
+		"""x.__truediv__(y) <==> x/y
+		
+		See Key.__div__()"""
 		return self.keys[other]
 	def __getitem__(self, key):
-		"""Returns the value of value key.
+		"""x.__getitem__(y) <==> x[y]
+		
+		Returns the value of value key.
 		Equivelent to self.values[key]."""
 		return self.values[key]
 	def __setitem__(self, key, value):
-		"""Sets the value of value key.
+		"""x.__setitem__(i, y) <==> x[i]=y
+		
+		Sets the value of value key.
 		Equivelent to self.values[key] = value."""
 		self.values[key] = value
 	def __delitem__(self, key):
-		"""Deletes the value key.
-		Equivelent to del self.values[key]."""
+		"""x.__delitem__(y) <==> del x[y]
+		
+		Deletes the value key. Equivelent to del self.values[key]."""
 		del self.values[key]
 	def __contains__(self, item):
-		"""Checks to see if item is a subkey of self.
+		"""x.__contains__(y) <==> y in x
+		
+		Checks to see if item is a subkey of self.
 		Item can be a key or string."""
 		if isinstance(item, Key):
 			return (self is item.parent)
 		else:
 			return item in self.key
 	def getPath(self, abbrev=True):
-		"""Returns the path of this key."""
-		return "%s\\%s" % (self.parent.getPath(abbrev), self.myname)
+		"""k.getPath([abbrev]) -> unicode
+		
+		Returns the path (eg, "HKCU\Software\Python 2.4") of the key
+		wrapped by this key. If abbrev is False, the full root (eg, HKEY_CURRENT_USER)
+		is used."""
+		return unicode(u"%s\\%s" % (self.parent.getPath(abbrev), self.myname))
 	def flush(self):
-		"""Ensures that this key is written to disk."""
-		winreg.FlushKey(self.handle)
+		"""k.flush() -> None
+		
+		Ensures that this key is written to disk. Calls _winreg.FlushKey(). See
+		<http://msdn.microsoft.com/library/en-us/sysinfo/base/regflushkey.asp>"""
+		_winreg.FlushKey(self.handle)
 	def loadKey(self, key, file):
-		"""Creates a subkey, loading information from the given file."""
-		hkey = winreg.RegLoadKey(self.handle, key, file)
+		"""k.loadKey(key, file) -> Key
+		
+		Opposite of saveKey().
+		Creates and returns a subkey, loading information from the given file.
+		Loads subkey key from file file. Only valid on HKEY_LOCAL_MACHINE and
+		HKEY_USERS."""
+		hkey = _winreg.RegLoadKey(self.handle, key, file)
 		return Key(self, key, hkey)
-	def openKey(self, key, sam=winreg.KEY_READ):
-		"""Opens a subkey, and returns a new Key object.
-		Unlike instantiation, this fails if the key does not exist."""
-		hkey = winreg.OpenKey(self.handle, key, 0, sam)
-		return Key(self, key, hkey)
-	def getMTime(self):
-		"""Returns a datetime containing the time this key was last modified."""
-		info = winreg.QueryInfoKey(self.handle)
-		nsec = info[2]
-		delta = timedelta(microseconds=nsec/10.0)
-		epoch = datetime(1600, 1, 1)
-		return epoch + delta
 	def saveKey(self, filename):
-		"""Saves this key to the file filename."""
-		winreg.saveKey(self.handle, filename)
+		"""k.saveKey(filename) -> None
+		
+		Opposite of loadKey(). Saves the currrent key to file filename."""
+		_winreg.saveKey(self.handle, filename)
+	def openKey(self, key, sam=_winreg.KEY_READ):
+		"""k.openKey(key[, sam]) -> Key
+		
+		Identical to akey.keys[key], except an error is generated if the
+		key does not exist. Also allows you to specify permissions in sam.
+		Use the KEY_* constants for sam. See
+		<http://msdn.microsoft.com/library/en-us/sysinfo/base/registry_key_security_and_access_rights.asp>
+		for details."""
+		hkey = _winreg.OpenKey(self.handle, key, 0, sam)
+		return Key(self, key, hkey)
+	def getmtime(self):
+		"""k.getMTime() -> datetime.datetime
+		
+		Returns a datetime.datetime containing the time this key was last modified."""
+		info = _winreg.QueryInfoKey(self.handle)
+		nsec = info[2]
+		delta = datetime.timedelta(microseconds=nsec/10.0)
+		epoch = datetime.datetime(1600, 1, 1)
+		return epoch + delta
 
 class _HKeyClassesRoot(Key):
 	"""A subclass of Key to encapsulate HKEY_CLASSES_ROOT."""
@@ -394,7 +438,7 @@ class _HKeyClassesRoot(Key):
 			return "HKCR"
 		else:
 			return "HKEY_CLASSES_ROOT"
-HKEY_CLASSES_ROOT = _HKeyClassesRoot(hkey=winreg.HKEY_CLASSES_ROOT)
+HKEY_CLASSES_ROOT = _HKeyClassesRoot(hkey=_winreg.HKEY_CLASSES_ROOT)
 
 class _HKeyCurrentConfig(Key):
 	"""A subclass of Key to encapsulate HKEY_CURRENT_CONFIG."""
@@ -403,7 +447,7 @@ class _HKeyCurrentConfig(Key):
 			return "HKCC"
 		else:
 			return "HKEY_CURRENT_CONFIG"
-HKEY_CURRENT_CONFIG = _HKeyCurrentConfig(hkey=winreg.HKEY_CURRENT_CONFIG)
+HKEY_CURRENT_CONFIG = _HKeyCurrentConfig(hkey=_winreg.HKEY_CURRENT_CONFIG)
 
 class _HKeyCurrentUser(Key):
 	"""A subclass of Key to encapsulate HKEY_CURRENT_USER."""
@@ -412,7 +456,7 @@ class _HKeyCurrentUser(Key):
 			return "HKCU"
 		else:
 			return "HKEY_CURRENT_USER"
-HKEY_CURRENT_USER = _HKeyCurrentUser(hkey=winreg.HKEY_CURRENT_USER)
+HKEY_CURRENT_USER = _HKeyCurrentUser(hkey=_winreg.HKEY_CURRENT_USER)
 
 class _HKeyDynData(Key):
 	"""A subclass of Key to encapsulate HKEY_DYN_DATA."""
@@ -421,7 +465,7 @@ class _HKeyDynData(Key):
 			return "HKDD"
 		else:
 			return "HKEY_DYN_DATA"
-HKEY_DYN_DATA = _HKeyDynData(hkey=winreg.HKEY_DYN_DATA)
+HKEY_DYN_DATA = _HKeyDynData(hkey=_winreg.HKEY_DYN_DATA)
 
 class _HKeyLocalMachine(Key):
 	"""A subclass of Key to encapsulate HKEY_LOCAL_MACHINE."""
@@ -430,7 +474,7 @@ class _HKeyLocalMachine(Key):
 			return "HKLM"
 		else:
 			return "HKEY_LOCAL_MACHINE"
-HKEY_LOCAL_MACHINE = _HKeyLocalMachine(hkey=winreg.HKEY_LOCAL_MACHINE)
+HKEY_LOCAL_MACHINE = _HKeyLocalMachine(hkey=_winreg.HKEY_LOCAL_MACHINE)
 
 class _HKeyPerformanceData(Key):
 	"""A subclass of Key to encapsulate HKEY_PERFORMANCE_DATA."""
@@ -439,7 +483,7 @@ class _HKeyPerformanceData(Key):
 			return "HKPD"
 		else:
 			return "HKEY_PERFORMANCE_DATA"
-HKEY_PERFORMANCE_DATA = _HKeyPerformanceData(hkey=winreg.HKEY_PERFORMANCE_DATA)
+HKEY_PERFORMANCE_DATA = _HKeyPerformanceData(hkey=_winreg.HKEY_PERFORMANCE_DATA)
 
 # HKEY_PERFORMANCE_NLSTEXT and HKEY_PERFORMANCE_TEXT would go
 # here (New to XP), but they aren't available from _winreg.
@@ -451,19 +495,19 @@ class _HKeyUsers(Key):
 			return "HKU"
 		else:
 			return "HKEY_USERS"
-HKEY_USERS = _HKeyUsers(hkey=winreg.HKEY_USERS)
+HKEY_USERS = _HKeyUsers(hkey=_winreg.HKEY_USERS)
 
 #Constants forwarded from _winreg
-KEY_ALL_ACCESS          = winreg.KEY_ALL_ACCESS
-KEY_CREATE_LINK         = winreg.KEY_CREATE_LINK
-KEY_CREATE_SUB_KEY      = winreg.KEY_CREATE_SUB_KEY
-KEY_ENUMERATE_SUB_KEYS  = winreg.KEY_ENUMERATE_SUB_KEYS
-KEY_EXECUTE             = winreg.KEY_EXECUTE
-KEY_NOTIFY              = winreg.KEY_NOTIFY
-KEY_QUERY_VALUE         = winreg.KEY_QUERY_VALUE
-KEY_READ                = winreg.KEY_READ
-KEY_SET_VALUE           = winreg.KEY_SET_VALUE
-KEY_WRITE               = winreg.KEY_WRITE
+KEY_ALL_ACCESS          = _winreg.KEY_ALL_ACCESS
+KEY_CREATE_LINK         = _winreg.KEY_CREATE_LINK
+KEY_CREATE_SUB_KEY      = _winreg.KEY_CREATE_SUB_KEY
+KEY_ENUMERATE_SUB_KEYS  = _winreg.KEY_ENUMERATE_SUB_KEYS
+KEY_EXECUTE             = _winreg.KEY_EXECUTE
+KEY_NOTIFY              = _winreg.KEY_NOTIFY
+KEY_QUERY_VALUE         = _winreg.KEY_QUERY_VALUE
+KEY_READ                = _winreg.KEY_READ
+KEY_SET_VALUE           = _winreg.KEY_SET_VALUE
+KEY_WRITE               = _winreg.KEY_WRITE
 ##REG_CREATED_NEW_KEY         = 1
 ##REG_FULL_RESOURCE_DESCRIPTOR = 9
 ##REG_LEGAL_CHANGE_FILTER = 15
