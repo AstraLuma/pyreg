@@ -178,7 +178,7 @@ class Key(object):
 		except: pass
 	def __repr__(self):
 		"""x.__repr__() <==> repr(x)"""
-		return "<Registry Key: %s>" % self.getPath(False)
+		return "%s/%s" % (`self.parent`, `self.myname`)
 	def __str__(self):
 		"""x.__str__() <==> str(x)
 		

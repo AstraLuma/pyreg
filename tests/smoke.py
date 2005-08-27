@@ -107,4 +107,20 @@ for v in type_values:
     n += 1
 
 pause()
+
+print "str() and repr() tests"
+target = HKEY_CURRENT_USER/'Software'/'Microsoft'/'Windows'/'CurrentVersion'/'Internet Settings'
+print "HKEY_CURRENT_USER/'Software'/'Microsoft'/'Windows'/'CurrentVersion'/'Internet Settings'"
+print "\t"+str(target)
+print "\t"+repr(target)
+target = HKEY_CURRENT_USER
+print "HKEY_CURRENT_USER"
+print "\t"+str(target)
+print "\t"+repr(target)
+target = HKEY_CURRENT_USER.keys['test']
+print "HKEY_CURRENT_USER.keys['test']"
+print "\t"+str(target)
+print "\t"+repr(target)
+pause()
+
 print "Good-bye!"

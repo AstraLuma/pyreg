@@ -10,6 +10,7 @@ class Binary(str):
 	"""MSDN: "Binary data in any form."
 	
 	Encapsulates the REG_BINARY type; based on str."""
+	#TODO: Override __str__ so it prints hex.
 	pass
 
 class DWORD(long):
