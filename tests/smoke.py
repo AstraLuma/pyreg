@@ -14,9 +14,14 @@ def pause(text=''):
         while c is None: c = sys.stdin.read(1)
 
 print "Begin basic tests."
-print "Before import: ",dir()
+before = after = set()
+before = set(dir())
+print "Before import: ",list(before)
 from pyreg import *
-print "After: ",dir()
+after = set(dir())
+print "After: ",list(after)
+print ""
+print "Defined names:",list(after - before)
 print ""
 print "The roots:"
 import pyreg.roots
@@ -50,14 +55,14 @@ pause()
 print "And with their content:"
 for v in target.values:
     print " *",v
-    print "\t",target[v].__class__.__name__,"-",target[v]
+    print "\t",target[v].__class__.__name__,"-",repr(target[v])
 pause()
 
 type_values = {
     'bin' : Binary("\x12\x34\x56\x78\x90"),
-    'dword' : DWORD(0x12345678),
-    'bdword' : DWORD_BigEndian(0x12345678),
-    'ldword' : DWORD_LittleEndian(0x12345678),
+    'dword' : DWORD(0x87654321),
+    'bdword' : DWORD_BigEndian(0x87654321),
+    'ldword' : DWORD_LittleEndian(0x87654321),
     'estr' : ExpandingString('You are %USER%'),
     'link' : Link(u'some link?'),
     'mstr' : MultiString(['this','is','a','MultiString.','Each','word','is','a','new','string.']),
@@ -77,8 +82,8 @@ if 'test' in HKEY_CURRENT_USER:
     print "Ready? Begin."
     for v in target.values:
         print " *",v
-        print "\t",target.values[v].__class__.__name__,"-",target[v]
-        if target[v] != type_values[v.lower()]: print "\tDoes not match stored value!"
+        print "\t",target.values[v].__class__.__name__,"-",repr(target[v])
+        if v in type_values and target[v] != type_values[v.lower()]: print "\tDoes not match stored value!"
 else:
     print "Skipping The Types Test Suite, Part I: Reading"
     print "Run this script again to perform Part I."

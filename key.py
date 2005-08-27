@@ -6,80 +6,9 @@ Last modified Augest 26, 2005
 import _winreg
 import datetime
 import sys
-import types
 import UserDict
-from pyreg.types import Binary,DWORD,DWORD_BigEndian,DWORD_LittleEndian,ExpandingString,Link,MultiString,ResourceList,String,rNone
+from pyreg.types import Binary,DWORD,DWORD_BigEndian,DWORD_LittleEndian,ExpandingString,Link,MultiString,ResourceList,String,rNone,_Registry2Object,_Object2Registry
 __all__=('Key')
-
-def _Registry2Object(t,v):
-	"""_Registry2Object(t,v) -> object
-	
-	Converts the given object and registry type to a registry type object."""
-	if t == _winreg.REG_BINARY:
-		return Binary(v)
-	elif t == _winreg.REG_DWORD:
-		return DWORD(v)
-	elif t == _winreg.REG_DWORD_LITTLE_ENDIAN:
-		return DWORD_LittleEndian(v)
-	elif t == _winreg.REG_DWORD_BIG_ENDIAN:
-		return DWORD_BigEndian(v)
-	elif t == _winreg.REG_EXPAND_SZ:
-		return ExpandingString(v)
-	elif t == _winreg.REG_LINK:
-		return Link(v)
-	elif t == _winreg.REG_MULTI_SZ:
-		return MultiString(v)
-	elif t == _winreg.REG_NONE:
-		return rNone(v)
-	elif t == _winreg.REG_RESOURCE_LIST:
-		return ResourceList(v)
-	elif t == _winreg.REG_SZ:
-		return String(v)
-	else:
-		# Assume REG_NONE
-		return rNone(v)
-
-def _Object2Registry(v):
-	"""_Object2Registry(v) -> (object, int)
-	
-	Converts the given registry type object to a tuple containing a _winreg-compatible object and a type.
-	You can also pass some native types, as follows:
-	+ basestring -> REG_SZ
-	+ list, tuple, set, enumerate, frozenset, generator -> REG_MULTI_SZ
-	+ buffer -> REG_BINARY"""
-	#We avoid inheritance problems by checking them in the reverse order they were defined
-	if isinstance(v, String):
-		return (v, _winreg.REG_SZ)
-	elif isinstance(v, ResourceList):
-		return (v, _winreg.REG_RESOURCE_LIST)
-	elif isinstance(v, rNone):
-		return (v, _winreg.REG_NONE)
-	elif isinstance(v, MultiString):
-		return (v, _winreg.REG_MULTI_SZ)
-	elif isinstance(v, Link):
-		return (v, _winreg.REG_LINK)
-	elif isinstance(v, ExpandingString):
-		return (v,_winreg.REG_EXPAND_SZ)
-	elif isinstance(v, DWORD_BigEndian):
-		return (v, _winreg.REG_DWORD_BIG_ENDIAN)
-	elif isinstance(v, DWORD_LittleEndian):
-		return (v, _winreg.REG_DWORD_LITTLE_ENDIAN)
-	elif isinstance(v, DWORD):
-		return (v, _winreg.REG_DWORD)
-	elif isinstance(v, Binary):
-		return (v, _winreg.REG_BINARY)
-	# These are conversions from native types
-	elif isinstance(v, basestring):
-		return (String(v), _winreg.REG_SZ)
-	elif ( isinstance(v, list) or isinstance(v, tuple) or isinstance(v, set) or
-		isinstance(v, enumerate) or isinstance(v, frozenset) or
-		isinstance(v, types.GeneratorType) ):
-		return (MultiString(v), _winreg.REG_MULTI_SZ)
-	elif isinstance(v, buffer):
-		return (Binary(v), _winreg.REG_BINARY)
-	else:
-		# Assume REG_NONE
-		return (rNone(v), _winreg.REG_NONE)
 
 class _RegValues(UserDict.DictMixin):
 	"""A dictionary wrapping the values of the key that created it. Don't
@@ -108,7 +37,10 @@ class _RegValues(UserDict.DictMixin):
 		
 		Sets the contents of the given value."""
 		t = _Object2Registry(value)
-		_winreg.SetValueEx(self.parent.handle, key, 0, t[1], t[0])
+		try:_winreg.SetValueEx(self.parent.handle, key, 0, t[1], t[0])
+		except:
+                    print (self.parent.handle, key, 0, t[1], t[0])
+                    raise
 	def __delitem__(self, key):
 		"""x.__delitem__(y) <==> del x[y]
 		
@@ -153,7 +85,7 @@ class _RegValues(UserDict.DictMixin):
 				raise StopIteration
 			else:
 				if not endoflist:
-					yield (key[0], _Registry2Object(val[2],val[1]))
+					yield (key[0], _Registry2Object(key[2],key[1]))
 	def __contains__(self, item):
 		"""v.__contains__(s) <==> s in v
 		
@@ -214,11 +146,11 @@ class _RegKeys(UserDict.DictMixin):
 		
 		True if the given subkey exists."""
 		try:
-			hkey = _winreg.OpenKey(self.parent.handle, key, 0, sam)
+			hkey = _winreg.OpenKey(self.parent.handle, item)
 		except WindowsError:
 			return False
 		else:
-			return true
+			return True
 
 class Key(object):
 	"""Wraps a registry key in a convenient way."""
@@ -288,7 +220,7 @@ class Key(object):
 		if isinstance(item, Key):
 			return (self is item.parent)
 		else:
-			return item in self.key
+			return item in self.keys
 	def getPath(self, abbrev=True):
 		"""k.getPath([abbrev]) -> unicode
 		

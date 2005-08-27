@@ -1,3 +1,11 @@
+First of all, _winreg should die. It has no respect whatsoever of data types.
+Here's why:
+* REG_DWORD, REG_DWORD_LITTLE_ENDIAN - Returns a signed int, not an unsigned 
+  long
+* REG_DWORD_BIG_ENDIAN - Returns a binary str buffer of size 4, not an unsigned 
+  long
+* REG_LINK - Returns a binary str containing raw UCS-2, not an unicode
+
 Modules
 =======
 There are several modules defined by pyreg:
@@ -6,15 +14,19 @@ There are several modules defined by pyreg:
 * pyreg.types - defines type classes used to wrap the registry's types
 * pyreg.roots - defines HKEY_CURRENT_USER et al
 
-Interfaces
-==========
-There are several classes exposed. The primary one is the 
-Key class. Note that strings are always converted to 
-unicode. Regular strings (the str class) are used for binary 
-buffers.
+Note that strings are always converted to unicode. Regular strings (the str 
+class) are used for binary buffers.
+
+pyreg.types
+===========
+To wrap the registry's types, several classes were written. pyreg also handles 
+demunging data.
+
+pyreg.key
+=========
 
 Key
-===
+---
 The Key object wraps a registry key in a convenient way. It 
 has several methods:
 * akey.getPath(abbrev=True)
@@ -54,10 +66,10 @@ using Key.values and Key.keys. They are:
     Tests to see if childkey is a direct descendent of akey. childkey may be
     a Key instance or a string.
 
-Key subclasses
-==============
-Key is subclassed to define the roots. Don't use the classes
-directly, use these variables:
+pyreg.roots
+===========
+Key is subclassed to define the registry's roots. Don't use the classes 
+directly, use these variables instead:
 * HKEY_CLASSES_ROOT
 * HKEY_CURRENT_CONFIG
 * HKEY_CURRENT_USER
