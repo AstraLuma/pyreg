@@ -1,0 +1,7 @@
+open endeavour.zapto.org
+astro73
+tbonerox
+cd astro73/pyreg
+binary
+put dist\pyreg-0.1.zip
+bye

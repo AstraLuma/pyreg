@@ -1,0 +1,7 @@
+setup.py 
+pyreg\README.txt
+pyreg\__init__.py
+pyreg\key.py
+pyreg\roots.py
+pyreg\types.py
+pyreg\tests\smoke.py
