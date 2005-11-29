@@ -2,7 +2,7 @@
 
 from distutils.core import setup
 
-ver='0.1'
+ver='0.2'
 
 setup(name="pyreg",
        version=ver,
@@ -20,6 +20,7 @@ http://endeavour.zapto.org/astro73/pyreg/readme.php for help or try
 
 You may file bug reports to the author's address.""",
        packages=['pyreg'],
+       package_dir = {'pyreg': 'src'},
        platforms=['Microsoft Windows'],
        license='GNU General Public License',
        classifiers=['Development Status :: 3 - Alpha',
