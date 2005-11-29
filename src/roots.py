@@ -5,6 +5,13 @@ Last modified Augest 26, 2005
 """
 import _winreg
 from pyreg.key import Key
+
+# _winreg doesn't define two roots:
+#define HKEY_PERFORMANCE_TEXT       (( HKEY ) (ULONG_PTR)((LONG)0x80000050) )
+_winreg.HKEY_PERFORMANCE_TEXT = -2147483568
+#define HKEY_PERFORMANCE_NLSTEXT    (( HKEY ) (ULONG_PTR)((LONG)0x80000060) )
+_winreg.HKEY_PERFORMANCE_NLSTEXT = -2147483552
+
 __all__ = ('HKEY_CLASSES_ROOT','HKEY_CURRENT_CONFIG','HKEY_CURRENT_USER','HKEY_DYN_DATA','HKEY_LOCAL_MACHINE','HKEY_PERFORMANCE_DATA','HKEY_USERS')
 
 class _HKeyRoot(Key):
@@ -68,6 +75,25 @@ HKEY_PERFORMANCE_DATA = _HKeyPerformanceData(hkey=_winreg.HKEY_PERFORMANCE_DATA)
 
 # HKEY_PERFORMANCE_NLSTEXT and HKEY_PERFORMANCE_TEXT would go
 # here (New to XP), but they aren't available from _winreg.
+# Screw it.
+
+class _HKeyPerformanceNLSText(_HKeyRoot):
+	"""A subclass of Key to encapsulate HKEY_PERFORMANCE_NLSTEXT."""
+	def getPath(self, abbrev=True):
+		if abbrev:
+			return "HKPN"
+		else:
+			return "HKEY_PERFORMANCE_NLSTEXT"
+HKEY_PERFORMANCE_NLSTEXT = _HKeyPerformanceNLSText(hkey=_winreg.HKEY_PERFORMANCE_NLSTEXT)
+
+class _HKeyPerformanceText(_HKeyRoot):
+	"""A subclass of Key to encapsulate HKEY_PERFORMANCE_TEXT."""
+	def getPath(self, abbrev=True):
+		if abbrev:
+			return "HKPT"
+		else:
+			return "HKEY_PERFORMANCE_TEXT"
+HKEY_PERFORMANCE_TEXT = _HKeyPerformanceNLSText(hkey=_winreg.HKEY_PERFORMANCE_TEXT)
 
 class _HKeyUsers(_HKeyRoot):
 	"""A subclass of Key to encapsulate HKEY_USERS."""

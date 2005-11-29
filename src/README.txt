@@ -10,17 +10,12 @@ Modules
 =======
 There are several modules defined by pyreg:
 * pyreg - basic, imports all of the others
-* pyreg.key - defines the base Key class.
+* pyreg.key - defines the base Key class
 * pyreg.types - defines type classes used to wrap the registry's types
 * pyreg.roots - defines HKEY_CURRENT_USER et al
 
 Note that strings are always converted to unicode. Regular strings (the str 
 class) are used for binary buffers.
-
-pyreg.types
-===========
-To wrap the registry's types, several classes were written. pyreg also handles 
-demunging data.
 
 pyreg.key
 =========
@@ -59,12 +54,41 @@ using Key.values and Key.keys. They are:
 
 * / - akey/sub
     Gets the subkey sub of akey. akey must be a Key object, sub must be a
-    string.
+    string (str or unicode).
+* | - akey|val
+    Gets the value val of akey. akye must be a Key instance, val must be a 
+    string (str or unicode).
 * [] - akey[val]
     Returns a value of akey. val must be a string.
 * in - childkey in akey
     Tests to see if childkey is a direct descendent of akey. childkey may be
-    a Key instance or a string.
+    a Key instance or a string. This is not recursive.
+
+Key.keys
+--------
+The Key.keys object is accessable only from a Key instance. It should never
+be created seperate from a Key.
+
+Key.keys is a dictionary of the subkeys of its creator Key. Therefore, all its
+items are also Key instances.
+
+Key.keys supports all the methods of a dictionary, although many are 
+inefficient.
+
+(Technical note: Key.keys is of the class _RegKeys which should not be 
+instanciated manually. _RegKeys extends UserDict.DictMixin, so is not a 
+pre-gnerated dict, rather it calls the _winreg functions to get values and 
+such.)
+
+Key.values
+----------
+Much like Key.keys, except it is for the values of its parent key. All its 
+items are of one of the classes in pyreg.types. It supports all methods of a 
+dictionary, although some are inefficient.
+
+(Technical note: Like Key.keys, Key.values is of the class _RegValues, 
+which is, again, a subclass of UserDict.DictMixin. Follow the same rules as 
+with Key.keys.)
 
 pyreg.roots
 ===========
@@ -76,7 +100,78 @@ directly, use these variables instead:
 * HKEY_DYN_DATA
 * HKEY_LOCAL_MACHINE
 * HKEY_PERFORMANCE_DATA
+* HKEY_PERFORMANCE_NLSTEXT
+* HKEY_PERFORMANCE_TEXT
 * HKEY_USERS
 Note that not all roots are usable on all versions of Windows. See
 <http://msdn.microsoft.com/library/en-us/sysinfo/base/predefined_keys.asp> for 
 details about them.
+
+***WARNING***
+HKEY_PERFORMANCE_NLSTEXT and HKEY_PERFORMANCE_TEXT only contain a few 
+values of the type REG_MULTI_SZ. However, the number of items within those 
+values numbers in the thousands. Use caution when enumerating.
+
+pyreg.types
+===========
+To wrap the registry's types, several classes were written. pyreg also handles 
+demunging data.
+
+(Note: Each class name is followed by the REG_* constant it wraps.)
+
+Binary - REG_BINARY
+------
+Behaves similarly to str. In fact, it is a subclass of str that does not define
+any methods.
+
+DWORD - REG_DWORD
+-----
+A long, other than that it is limited to the range of an unsigned 32-bit value.
+
+DWORD_LittleEndian - REG_DWORD_LITTLE_ENDIAN
+------------------
+Identical to DWORD (because Windows is a little-endian system).
+
+DWORD_BigEndian - REG_DWORD_BIG_ENDIAN
+---------------
+Basically the same as a DWORD, except that it is stored in big endian form in 
+the registry. (It appears in the correct order to scripts.)
+
+ExpandingString - REG_EXPAND_SZ
+---------------
+A unicode string that contains enviroment variables (%foo%).
+
+Link - REG_LINK
+----
+Note: "Applications should not use this type." (MSDN)
+
+A unicode string.
+
+MultiString - REG_MULTI_SZ
+-----------
+A list of unicode strings. It will only deal with types that can be converted to
+a string.
+
+rNone - REG_NONE
+-----
+A value of no defined type; behaves identically to Binary.
+
+ResourceList - REG_RESOURCE_LIST
+------------
+If you know details about this data type, I would like to hear about it. Until
+then, it behaves like Binary.
+
+String - REG_SZ
+------
+A unicode string. (Strings are always Unicode due to _winreg implementation, 
+although if this changes, I am likely to force unicode anyway.)
+
+About data type conversion
+--------------------------
+During the save and load processes, data types are converted to/from a form that
+_winreg will store correctly (aka munging/demunging). You may define your own 
+classes that pyreg can store by either:
+* Inhieriting from one of the pre-defined types above
+* Defining the __registry__ function
+Note that you can only make your class writable to the registry. pyreg will 
+never use a class in loading other than the predefined ones.

@@ -25,13 +25,9 @@ print "Defined names:",list(after - before)
 print ""
 print "The roots:"
 import pyreg.roots
-print pyreg.roots.HKEY_CLASSES_ROOT
-print pyreg.roots.HKEY_CURRENT_CONFIG
-print pyreg.roots.HKEY_CURRENT_USER
-print pyreg.roots.HKEY_DYN_DATA
-print pyreg.roots.HKEY_LOCAL_MACHINE
-print pyreg.roots.HKEY_PERFORMANCE_DATA
-print pyreg.roots.HKEY_USERS
+for rt in vars(pyreg.roots):
+    if rt[:5] == 'HKEY_':
+        print rt,getattr(pyreg.roots, rt)
 print ""
 print "ok, enough of that."
 pause('')
@@ -58,6 +54,15 @@ for v in target.values:
     print "\t",target[v].__class__.__name__,"-",repr(target[v])
 pause()
 
+print "Arbitrarily pull up a value (or two):"
+target = HKEY_CLASSES_ROOT/'.pyc'|None
+print " code: HKEY_CLASSES_ROOT/'.py'|None"
+print " result:",repr(target)
+target = HKEY_CLASSES_ROOT/'.py'|'Content Type'
+print " code: HKEY_CLASSES_ROOT/'.py'|'Content Type'"
+print " result:",repr(target)
+pause()
+
 type_values = {
     'bin' : Binary("\x12\x34\x56\x78\x90"),
     'dword' : DWORD(0x87654321),
@@ -76,7 +81,7 @@ if 'test' in HKEY_CURRENT_USER:
     print ""
     target = HKEY_CURRENT_USER.keys['test']
     print "The Types Test Suite, Part I: Reading"
-    print "I will show you each of the values in",target,"and their content."
+    print "I will show you each of the values in "+target+" and their content."
     print "You are to report errors that appear."
     print "If any of the values do not match, try again before reporting the error."
     print "Ready? Begin."
@@ -92,7 +97,7 @@ pause()
 
 target = HKEY_CURRENT_USER.keys['test']
 print "The Types Test Suite, Part II: Writting"
-print "I will write predefined values in to",target,"."
+print "I will write predefined values to "+target+"."
 print "You are to report errors that appear."
 from time import *
 n = int(time())

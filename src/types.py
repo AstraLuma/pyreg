@@ -196,7 +196,7 @@ def _Object2Registry(v):
 	elif isinstance(v, long) or isinstance(v, int):
 		return (DWORD(v).__toregistry__(), _winreg.REG_BINARY)
 	else:
-		print "Unknown type:",v.__class__,"-",repr(v)
+		#print "Unknown type:",v.__class__,"-",repr(v)
 		#If it has a __registry__ method, call that first.
 		if hasattr(v, '__registry__') and callable(v.__registry__):
 			o = v.__registry__()
