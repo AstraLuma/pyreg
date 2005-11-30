@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+DEBUG = True
+
 from distutils.core import setup
 
 ver='0.2'
@@ -20,9 +22,10 @@ http://endeavour.zapto.org/astro73/pyreg/readme.php for help or try
 
 You may file bug reports to the author's address.""",
        packages=['pyreg'],
-       package_dir = {'pyreg': 'src'},
+       package_dir={'pyreg': 'src'},
        platforms=['Microsoft Windows'],
        license='GNU General Public License',
+#       requires='_winreg',
        classifiers=['Development Status :: 3 - Alpha',
                     'Intended Audience :: Developers',
                     'License :: OSI Approved :: GNU General Public License (GPL)',
