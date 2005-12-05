@@ -103,7 +103,7 @@ class _RegValues(UserDict.DictMixin):
 		except WindowsError:
 			return False
 		else:
-			return true
+			return True
 
 class _RegKeys(UserDict.DictMixin):
 	"""A dictionary wrapping the subkeys of the key that created it. Don't
