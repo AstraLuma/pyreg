@@ -173,11 +173,19 @@ although if this changes, I am likely to force unicode anyway.)
 About data type conversion
 --------------------------
 During the save and load processes, data types are converted to/from a form that
-_winreg will store correctly (aka munging/demunging). You may define your own 
+_winreg will store correctly, aka (de)munging). You may define your own 
 classes that pyreg can store by either:
-* Inhieriting from one of the pre-defined types above
-* Defining the __registry__ function
-Note that you can only make your class writable to the registry. pyreg will 
-never use a class in loading other than the predefined ones.
+* Inheriting from one of the pre-defined types above
+* Defining the __to_registry__ function
+
+You may also allow your class to be created upon retrieval. To do this, you 
+must:
+1. Define __from_registry__ as a class-callable type (ie, staticmethod or 
+   classmethod), which returns an instance of your class
+2. Add your type to the _registryDataClasses dictionary, the key being the type
+   constant used by _winreg
+
+Note that if you inherit from a native type already handled, and can accept 
+registry data in your constructor, you may inherit from RegistryType as well.
 
 $Date$

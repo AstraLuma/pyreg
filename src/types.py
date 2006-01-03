@@ -4,20 +4,27 @@ By Jamie Bliss
 Last modified $Date$
 """
 import _winreg
+import types
+__all__ = ('Binary', 'DWORD', 'DWORD_BigEndian', 'DWORD_LittleEndian', 'ExpandingString', 'Link', 'MultiString', 'ResourceList', 'String', 'rNone')
 
-__all__=('Binary','DWORD','DWORD_BigEndian','DWORD_LittleEndian','ExpandingString','Link','MultiString','ResourceList','String','rNone')
+class RegistryType:
+	"""Provides default implementation for registry methods."""
+	@classmethod
+	def __from_registry__(cls, val):
+		"""Converts registry data to an instance of this class. Must be a classmethod or a staticmethod. Takes one argument, the value."""
+		return cls(val)
 
-_generator = (x for x in [0]).__class__
+	def __to_registry__(self):
+		"""Converts this instance to something _winreg understands. Returns either an instance of a class in the  in the _registryDataClasses, or a two-tuple."""
+		return self
 
-
-class Binary(str):
+class Binary(str, RegistryType):
 	"""MSDN: "Binary data in any form."
 	
 	Encapsulates the REG_BINARY type; based on str."""
 	#TODO: Override __str__ so it prints hex.
-	pass
 
-class DWORD(long):
+class DWORD(long, RegistryType):
 	"""MSDN: "A 32-bit number."
 	
 	Encapsulates the REG_DWORD type.
@@ -30,15 +37,17 @@ class DWORD(long):
 		if long(inst & 0xFFFFFFFF) != long(inst):
 			inst = DWORD(inst & 0xFFFFFFFF)
 		return inst
-	def __toregistry__(self):
+	
+	def __to_registry__(self):
 		# We have to convert to a signed 4-byte interger. _winreg is lame that way.
 		if (self >= 0x80000000):
 			return int(self - 0x100000000)
 		else:
 			return self
-	@staticmethod
-	def __fromregistry__(v):
-		return DWORD(v & 0xFFFFFFFF)
+	
+	@classmethod
+	def __from_registry__(cls, v):
+		return cls(v & 0xFFFFFFFF)
 
 class DWORD_LittleEndian(DWORD):
 	"""MSDN: "A 32-bit number in little-endian format. This is equivalent to REG_DWORD.
@@ -53,11 +62,12 @@ class DWORD_BigEndian(DWORD):
 	In big-endian format, a multi-byte value is stored in memory from the highest byte (the "big end") to the lowest byte. For example, the value 0x12345678 is stored as (0x12 0x34 0x56 0x78) in big-endian format."
 
 	Encapsulates REG_DWORD_BIG_ENDIAN, behaves like DWORD."""
-	@staticmethod
-	def __fromregistry__(v):
+	@classmethod
+	def __from_registry__(cls, v):
 		x = ord(v[3]) | ord(v[2])<<8 | ord(v[1])<<16 | ord(v[0])<<24
-		return DWORD_BigEndian(x)
-	def __toregistry__(self):
+		return cls(x)
+	
+	def __to_registry__(self):
 		rtn = ''
 		rtn = chr( self        & 0xFF) + rtn
 		rtn = chr((self >>  8) & 0xFF) + rtn
@@ -65,24 +75,26 @@ class DWORD_BigEndian(DWORD):
 		rtn = chr((self >> 24) & 0xFF) + rtn
 		return rtn
 
-class ExpandingString(unicode):
+class ExpandingString(unicode, RegistryType):
 	"""MDSN: "A null-terminated string that contains unexpanded references to environment variables (for example, "%PATH%"). It will be a Unicode or ANSI string depending on whether you use the Unicode or ANSI functions. To expand the environment variable references, use the ExpandEnvironmentStrings function."
 
 	Encapsulates REG_EXPAND_SZ, based on unicode."""
 	pass
 
 
-class Link(unicode):
+class Link(unicode, RegistryType):
 	"""MSDN: "A Unicode symbolic link. Used internally; applications should not use this type."
 	
 	Encapsulates REG_LINK, based on unicode."""
-	@staticmethod
-	def __fromregistry__(v):
-		return Link(v, 'utf-16le', 'replace')
-	def __toregistry__(self):
+	
+	@classmethod
+	def __from_registry__(cls, v):
+		return cls(v, 'utf-16le', 'replace')
+	
+	def __to_registry__(self):
 		return self
 
-class MultiString(list):
+class MultiString(list, RegistryType):
 	"""MSDN: "An array of null-terminated strings, terminated by two null characters."
 
 	Encapsulates REG_MULTI_SZ; based on list.
@@ -116,95 +128,82 @@ class MultiString(list):
 class rNone(Binary):
 	"""MSDN: "No defined value type."
 
-	Wraps REG_NONE, same as Binary."""
+	Wraps REG_NONE, identical to Binary."""
 	pass
 
 class ResourceList(Binary):
 	"""MSDN: "A device-driver resource list."
 
 	Encapsulates REG_RESOURCE_LIST; behaves like Binary."""
+	pass
 
-class String(unicode):
+class String(unicode, RegistryType):
 	"""MDSN: "A null-terminated string. It will be a Unicode or ANSI string, depending on whether you use the Unicode or ANSI functions."
 
 	Encapsulates REG_SZ, based on unicode. (strings are always Unicode due to _winreg implementation.)"""
 	pass
 
+_registryDataClasses = {
+	_winreg.REG_BINARY : Binary,
+	_winreg.REG_DWORD : DWORD,
+	_winreg.REG_DWORD_LITTLE_ENDIAN : DWORD_LittleEndian,
+	_winreg.REG_DWORD_BIG_ENDIAN : DWORD_BigEndian,
+	_winreg.REG_EXPAND_SZ : ExpandingString,
+	_winreg.REG_LINK : Link,
+	_winreg.REG_MULTI_SZ : MultiString,
+	_winreg.REG_NONE : rNone,
+	_winreg.REG_RESOURCE_LIST : ResourceList,
+	_winreg.REG_SZ : String,
+}
+"""A dictionary linking the registry data type constants (keys) to the classes that handle them (values)."""
+
+_dict_index = lambda d, v: d.keys[d.values.index(v)] ## There's gotta be a better way to do that
+
 def _Registry2Object(t,v):
 	"""_Registry2Object(t,v) -> object
 	
 	Converts the given object and registry type to a registry type object."""
-	if t == _winreg.REG_BINARY:
-		return Binary(v)
-	elif t == _winreg.REG_DWORD:
-		return DWORD.__fromregistry__(v)
-	elif t == _winreg.REG_DWORD_LITTLE_ENDIAN:
-		return DWORD_LittleEndian.__registry__(v)
-	elif t == _winreg.REG_DWORD_BIG_ENDIAN:
-		return DWORD_BigEndian.__fromregistry__(v)
-	elif t == _winreg.REG_EXPAND_SZ:
-		return ExpandingString(v)
-	elif t == _winreg.REG_LINK:
-		return Link.__fromregistry__(v)
-	elif t == _winreg.REG_MULTI_SZ:
-		return MultiString(v)
-	elif t == _winreg.REG_NONE:
-		return rNone(v)
-	elif t == _winreg.REG_RESOURCE_LIST:
-		return ResourceList(v)
-	elif t == _winreg.REG_SZ:
-		return String(v)
+	if t in _registryDataClasses:
+		return _registryDataClasses[t].__from_registry__(v)
 	else:
 		# Assume REG_NONE
-		return rNone(v)
+		return rNone.__from_registry__(v)
 
 def _Object2Registry(v):
 	"""_Object2Registry(v) -> (object, int)
 	
 	Converts the given registry type object to a tuple containing a _winreg-compatible object and a type.
 	You can also pass some native types, as follows:
-	+ basestring -> REG_SZ
-	+ list, tuple, set, enumerate, frozenset, generator -> REG_MULTI_SZ
-	+ buffer -> REG_BINARY"""
+	+ basestring -> String
+	+ list, tuple, set, enumerate, frozenset, generator -> MultiString
+	+ buffer -> Binary
+	+ long, int -> DWORD
+	+ None -> null rNone
+	+ bool -> DWORD (-1 or 0)"""
 	
-	#We avoid inheritance problems by checking them in the reverse order they were defined
-	if isinstance(v, String):
-		return (v, _winreg.REG_SZ)
-	elif isinstance(v, ResourceList):
-		return (v, _winreg.REG_RESOURCE_LIST)
-	elif isinstance(v, rNone):
-		return (v, _winreg.REG_NONE)
-	elif isinstance(v, MultiString):
-		return (v, _winreg.REG_MULTI_SZ)
-	elif isinstance(v, Link):
-		return (v.__toregistry__(), _winreg.REG_LINK)
-	elif isinstance(v, ExpandingString):
-		return (v,_winreg.REG_EXPAND_SZ)
-	elif isinstance(v, DWORD_BigEndian):
-		return (v.__toregistry__(), _winreg.REG_DWORD_BIG_ENDIAN)
-	elif isinstance(v, DWORD_LittleEndian):
-		return (v.__toregistry__(), _winreg.REG_DWORD_LITTLE_ENDIAN)
-	elif isinstance(v, DWORD):
-		return (v.__toregistry__(), _winreg.REG_DWORD)
-	elif isinstance(v, Binary):
-		return (v, _winreg.REG_BINARY)
-	# These are conversions from native types
-	elif isinstance(v, basestring):
-		return (String(v), _winreg.REG_SZ)
-	elif ( isinstance(v, list) or isinstance(v, tuple) or isinstance(v, set) or
-		isinstance(v, enumerate) or isinstance(v, frozenset) or
-		isinstance(v, _generator) ):
-		return (MultiString(v), _winreg.REG_MULTI_SZ)
-	elif isinstance(v, buffer):
-		return (Binary(v), _winreg.REG_BINARY)
-	elif isinstance(v, long) or isinstance(v, int):
-		return (DWORD(v).__toregistry__(), _winreg.REG_BINARY)
-	else:
-		#print "Unknown type:",v.__class__,"-",repr(v)
-		#If it has a __registry__ method, call that first.
-		if hasattr(v, '__registry__') and callable(v.__registry__):
-			o = v.__registry__()
-			return _Object2Registry(o)
-		else:
-			# assume REG_NONE
-			return (rNone(v), _winreg.REG_NONE)
+	for __aNumberIDontUseButNeedToTrackThisLoop in range(0, 2):
+		## A known type
+		if v.__class__ in _registryDataClasses.values:
+			t = _dict_index(_registryDataClasses, v.__class__)
+			return (v.__to_registry__(), t)
+		elif hasattr(v, '__to_registry__'):
+			v = v.__to_registry__()
+		## These are conversions from native types
+		## Must be last so that inheritance trees don't screw it up
+		elif isinstance(v, basestring):
+			return _Object2Registry(String(v))
+		elif ( isinstance(v, list) or isinstance(v, tuple) or isinstance(v, set) or
+				isinstance(v, enumerate) or isinstance(v, frozenset) or
+				isinstance(v, types.GeneratorType) ):
+			return _Object2Registry(MultiString(v))
+		elif isinstance(v, buffer):
+			return _Object2Registry(Binary(v))
+		elif isinstance(v, long) or isinstance(v, int):
+			return _Object2Registry(DWORD(v))
+		## These types don't cleanly convert to another type
+		elif isinstance(v, types.TypeNone):
+			return ('', _winreg.REG_NONE)
+		elif isinstance(v, bool):
+			if v: return (0xFFFFFFFF, _winreg.REG_DWORD)
+			else: return (0, _winreg.REG_DWORD)
+	raise TypeError("The variable you passed can't be converted to a type acceptable by _winreg")
