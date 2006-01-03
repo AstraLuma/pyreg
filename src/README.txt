@@ -75,6 +75,8 @@ items are also Key instances.
 Key.keys supports all the methods of a dictionary, although many are 
 inefficient.
 
+If a non-existant key is accessed, a new one is created.
+
 (Technical note: Key.keys is of the class _RegKeys which should not be 
 instanciated manually. _RegKeys extends UserDict.DictMixin, so is not a 
 pre-gnerated dict, rather it calls the _winreg functions to get values and 
@@ -85,6 +87,8 @@ Key.values
 Much like Key.keys, except it is for the values of its parent key. All its 
 items are of one of the classes in pyreg.types. It supports all methods of a 
 dictionary, although some are inefficient.
+
+When an non-existant value is accessed, Key.values raises a KeyError exception.
 
 (Technical note: Like Key.keys, Key.values is of the class _RegValues, 
 which is, again, a subclass of UserDict.DictMixin. Follow the same rules as 
@@ -114,8 +118,8 @@ values numbers in the thousands. Use caution when enumerating.
 
 pyreg.types
 ===========
-To wrap the registry's types, several classes were written. pyreg also handles 
-demunging data.
+To wrap the registry's types, several classes were written. pyreg.types also 
+handles demunging data.
 
 (Note: Each class name is followed by the REG_* constant it wraps.)
 
@@ -175,3 +179,5 @@ classes that pyreg can store by either:
 * Defining the __registry__ function
 Note that you can only make your class writable to the registry. pyreg will 
 never use a class in loading other than the predefined ones.
+
+$Date$

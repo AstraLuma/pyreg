@@ -1,7 +1,7 @@
 """
 pyreg.roots - Defines the registry's roots (predefined keys)
 By Jamie Bliss
-Last modified Augest 26, 2005
+Last modified $Date$
 """
 import _winreg
 from pyreg.key import Key

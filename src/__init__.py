@@ -1,7 +1,7 @@
 """
 pyreg - Defines classes to interface with the registry.
 By Jamie Bliss
-Last modified Augest 26, 2005
+Last modified $Date$
 """
 import _winreg
 from pyreg.types import Binary,DWORD,DWORD_BigEndian,DWORD_LittleEndian,ExpandingString,Link,MultiString,ResourceList,String,rNone

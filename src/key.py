@@ -1,7 +1,7 @@
 """
 pyreg.key - Defines the Key class
 By Jamie Bliss
-Last modified Augest 26, 2005
+Last modified $Date$
 """
 import _winreg
 import datetime

@@ -1,11 +1,15 @@
 """
 pyreg.types - Defines classes to wrap the registry's types
 By Jamie Bliss
-Last modified Augest 26, 2005
+Last modified $Date$
 """
 import _winreg
+
 __all__=('Binary','DWORD','DWORD_BigEndian','DWORD_LittleEndian','ExpandingString','Link','MultiString','ResourceList','String','rNone')
+
 _generator = (x for x in [0]).__class__
+
+
 class Binary(str):
 	"""MSDN: "Binary data in any form."
 	
