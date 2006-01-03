@@ -8,7 +8,8 @@ import datetime
 import sys
 import UserDict
 from pyreg.types import Binary,DWORD,DWORD_BigEndian,DWORD_LittleEndian,ExpandingString,Link,MultiString,ResourceList,String,rNone,_Registry2Object,_Object2Registry
-__all__=('Key')
+
+__all__=('Key', 'ValueReference')
 
 # These functions are new (to me):
 # * GetSystemRegistryQuota
@@ -18,12 +19,26 @@ __all__=('Key')
 # * RegGetValue
 # * RegQueryReflectionKey
 
+class ValueReference(object):
+	"""A reference to a value, allows you to pass a reference to a registry value.
+	
+	There aren't any meta-data functions because they would be as expensive as just dereferencing."""
+	parent = None
+	value = None
+	def __init__(self, parent, value):
+		self.parent = parent
+		self.value = value
+	
+	def __call__(self):
+		"""Get the actual value that this references."""
+		return self.parent.values[self.value]
+
 class _RegValues(UserDict.DictMixin):
 	"""A dictionary wrapping the values of the key that created it. Don't
 	instantiate yourself, use akey.values. Note that while it is a full
 	dictionary, many of the methods don't make sense (eg, push() and pop())."""
 	__slots__=('parent')
-	def __init__(self,parent):
+	def __init__(self, parent):
 		self.parent=parent
 	def __len__(self):
 		"""x.__len__() <==> len(x)
@@ -31,7 +46,10 @@ class _RegValues(UserDict.DictMixin):
 		Returns the number of values in this key."""
 		info = _winreg.QueryInfoKey(self.parent._handle)
 		return info[1]
-	def __getitem__(self,key):
+	def ref(self, key):
+		"""Returns a reference to the value; see ValueReference."""
+		return ValueReference(self.parent, key)
+	def __getitem__(self, key):
 		"""x.__getitem__(y) <==> x[y]
 		
 		Returns the contents of the given value, or creates a new one."""
@@ -40,12 +58,12 @@ class _RegValues(UserDict.DictMixin):
 		except WindowsError:
 			raise KeyError
 		return _Registry2Object(val[1],val[0]);
-	def __setitem__(self,key,value):
+	def __setitem__(self, key, value):
 		"""x.__setitem__(i, y) <==> x[i]=y
 		
 		Sets the contents of the given value."""
 		t = _Object2Registry(value)
-		try:_winreg.SetValueEx(self.parent._handle, key, 0, t[1], t[0])
+		try: _winreg.SetValueEx(self.parent._handle, key, 0, t[1], t[0])
 		except:
                     print (self.parent.handle, key, 0, t[1], t[0])
                     raise
@@ -65,35 +83,29 @@ class _RegValues(UserDict.DictMixin):
 		
 		Returns a generator that enumerates the names of the values."""
 		n = 0
-		endoflist = False
 		key = ""
-		while not endoflist:
+		while True:
 			try:
 				key = _winreg.EnumValue(self.parent._handle, n)
 				n += 1
 			except EnvironmentError:
-				endoflist = True
-				raise StopIteration
+				break
 			else:
-				if not endoflist:
-					yield key[0]
+				yield key[0]
 	def iteritems(self):
 		"""x.iteritems() -> generator
 		
 		Returns a generator that enumerates the names & contents of the values."""
 		n = 0
-		endoflist = False
 		key = ""
-		while not endoflist:
+		while True:
 			try:
 				key = _winreg.EnumValue(self.parent._handle, n)
 				n += 1
 			except EnvironmentError:
-				endoflist = True
-				raise StopIteration
+				break
 			else:
-				if not endoflist:
-					yield (key[0], _Registry2Object(key[2],key[1]))
+				yield (key[0], _Registry2Object(key[2],key[1]))
 	def __contains__(self, item):
 		"""v.__contains__(s) <==> s in v
 		
@@ -139,14 +151,12 @@ class _RegKeys(UserDict.DictMixin):
 		
 		Returns a generator that enumerates the names of the subkeys."""
 		n = 0
-		endoflist = False
-		while not endoflist:
+		while True:
 			try:
 				key = _winreg.EnumKey(self.parent._handle, n)
 				n += 1
 			except EnvironmentError:
-				endoflist = True
-				raise StopIteration
+				break
 			else:
 				yield key
 	def __contains__(self, item):

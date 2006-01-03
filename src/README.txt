@@ -94,6 +94,20 @@ When an non-existant value is accessed, Key.values raises a KeyError exception.
 which is, again, a subclass of UserDict.DictMixin. Follow the same rules as 
 with Key.keys.)
 
+ValueReference
+--------------
+This allows you to refer to a value without actually getting the value. It is
+obtained either by calling Key.values.ref() with the value name, or by creating
+it yourself and passing it the Key and value.
+
+Note that there is no equivelent for keys, since all their data is generated
+anyway.
+
+Operators (aref refers to a ValueReference instance):
+* () - aref()
+    Gets the value (dereferences) of this value. Meaning it calls the original 
+    key and gets the value.
+
 pyreg.roots
 ===========
 Key is subclassed to define the registry's roots. Don't use the classes 

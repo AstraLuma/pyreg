@@ -7,6 +7,7 @@ import _winreg
 import types
 __all__ = ('Binary', 'DWORD', 'DWORD_BigEndian', 'DWORD_LittleEndian', 'ExpandingString', 'Link', 'MultiString', 'ResourceList', 'String', 'rNone')
 
+## Not a new-style object because we don't need the extras.
 class RegistryType:
 	"""Provides default implementation for registry methods."""
 	@classmethod
