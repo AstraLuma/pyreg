@@ -81,7 +81,7 @@ if 'test' in HKEY_CURRENT_USER:
     print ""
     target = HKEY_CURRENT_USER.keys['test']
     print "The Types Test Suite, Part I: Reading"
-    print "I will show you each of the values in "+target+" and their content."
+    print "I will show you each of the values in "+str(target)+" and their content."
     print "You are to report errors that appear."
     print "If any of the values do not match, try again before reporting the error."
     print "Ready? Begin."
@@ -97,14 +97,14 @@ pause()
 
 target = HKEY_CURRENT_USER.keys['test']
 print "The Types Test Suite, Part II: Writting"
-print "I will write predefined values to "+target+"."
+print "I will write predefined values to "+str(target)+"."
 print "You are to report errors that appear."
 from time import *
 n = int(time())
 print "Ready? Begin."
 for v in type_values:
     if n & 1:
-        print v,"(k[v])"
+        print `v`,"(k[v])"
         target[v] = type_values[v]
     else:
         print v,"(k.values[v])"

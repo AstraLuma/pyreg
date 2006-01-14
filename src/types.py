@@ -4,8 +4,10 @@ By Jamie Bliss
 Last modified $Date$
 """
 import _winreg
-import types
+#import types ## Conflicts with this module
 __all__ = ('Binary', 'DWORD', 'DWORD_BigEndian', 'DWORD_LittleEndian', 'ExpandingString', 'Link', 'MultiString', 'ResourceList', 'String', 'rNone')
+
+_GeneratorType = (i for i in []).__class__
 
 ## Not a new-style object because we don't need the extras.
 class RegistryType:
@@ -158,7 +160,7 @@ _registryDataClasses = {
 }
 """A dictionary linking the registry data type constants (keys) to the classes that handle them (values)."""
 
-_dict_index = lambda d, v: d.keys[d.values.index(v)] ## There's gotta be a better way to do that
+_dict_index = lambda d, v: d.keys()[d.values().index(v)] ## There's gotta be a better way to do that
 
 def _Registry2Object(t,v):
 	"""_Registry2Object(t,v) -> object
@@ -169,7 +171,6 @@ def _Registry2Object(t,v):
 	else:
 		# Assume REG_NONE
 		return rNone.__from_registry__(v)
-
 def _Object2Registry(v):
 	"""_Object2Registry(v) -> (object, int)
 	
@@ -181,10 +182,9 @@ def _Object2Registry(v):
 	+ long, int -> DWORD
 	+ None -> null rNone
 	+ bool -> DWORD (-1 or 0)"""
-	
-	for __aNumberIDontUseButNeedToTrackThisLoop in range(0, 2):
+	for __aNumberIDontUseButNeedToTrackThisLoopWith in range(0, 2):
 		## A known type
-		if v.__class__ in _registryDataClasses.values:
+		if v.__class__ in _registryDataClasses.values():
 			t = _dict_index(_registryDataClasses, v.__class__)
 			return (v.__to_registry__(), t)
 		elif hasattr(v, '__to_registry__'):
@@ -195,14 +195,14 @@ def _Object2Registry(v):
 			return _Object2Registry(String(v))
 		elif ( isinstance(v, list) or isinstance(v, tuple) or isinstance(v, set) or
 				isinstance(v, enumerate) or isinstance(v, frozenset) or
-				isinstance(v, types.GeneratorType) ):
+				isinstance(v, _GeneratorType) ):
 			return _Object2Registry(MultiString(v))
 		elif isinstance(v, buffer):
 			return _Object2Registry(Binary(v))
 		elif isinstance(v, long) or isinstance(v, int):
-			return _Object2Registry(DWORD(v))
+			return (DWORD(v).__to_registry__(), _winreg.REG_DWORD)
 		## These types don't cleanly convert to another type
-		elif isinstance(v, types.TypeNone):
+		elif isinstance(v, None.__class__):
 			return ('', _winreg.REG_NONE)
 		elif isinstance(v, bool):
 			if v: return (0xFFFFFFFF, _winreg.REG_DWORD)

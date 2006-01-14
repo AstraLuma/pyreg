@@ -116,6 +116,22 @@ class _RegValues(UserDict.DictMixin):
 			return False
 		else:
 			return True
+	
+	def copy(self):
+		"""D.copy() -> a shallow copy of D"""
+		value = {}
+		for i in self.iteritems(): value[i[0]] = i[1]
+		return value
+	def update(self, dict, **kwargs):
+		"""D.update(E, **F) -> None.  Upadte D from E and F: for k in E: D[k] = E[k]
+		(if E has keys else: for (k, v) in E: D[k] = v) then: for k in F: D[k] = F[k]"""
+		try:
+			for k in dict: self[k] = dict[k]
+		except TypeError:
+			try:
+				for (k, v) in dict: self[k] = v
+			except: pass
+		for k in kwargs: self[k] = kwargs[k]
 
 class _RegKeys(UserDict.DictMixin):
 	"""A dictionary wrapping the subkeys of the key that created it. Don't
