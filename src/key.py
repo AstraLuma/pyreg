@@ -192,12 +192,22 @@ class Key(object):
 	def __init__(self, curkey=None, subkey='', hkey=None):
 		"""Initializer. Don't pass anything to hkey, it is used internally."""
 		subkey = unicode(subkey)
+		subkey = subkey.replace('/', '\\')
+		
+		## If they're grabbing more than one at a time, sort out parents.
+		sep = subkey.rfind('\\')
+		if sep != -1:
+			self.parent = Key(curkey, subkey[:sep])
+			self.myname = subkey[sep+1:]
+		else:
+			self.parent = curkey
+			self.myname = subkey
+		
 		if hkey is not None:
 			self._handle=hkey
 		else:
 			self._handle = _winreg.CreateKey(curkey._handle, subkey)
-		self.parent=curkey
-		self.myname=subkey
+		
 		self.values = _RegValues(self)
 		self.keys = _RegKeys(self)
 		
@@ -298,7 +308,7 @@ class Key(object):
 		for details."""
 		hkey = _winreg.OpenKey(self._handle, key, 0, sam)
 		return Key(self, key, hkey)
-	def getmtime(self):
+	def getMTime(self):
 		"""k.getMTime() -> datetime.datetime
 		
 		Returns a datetime.datetime containing the time this key was last modified."""
@@ -307,3 +317,11 @@ class Key(object):
 		delta = datetime.timedelta(microseconds=nsec/10.0)
 		epoch = datetime.datetime(1600, 1, 1)
 		return epoch + delta
+	def getParent(self):
+		"""k.getParent() -> Key
+		
+		Returns the parent of this key. Note that if it was created using 
+		"nested" keys, that this will return the true parent. ie,
+		`(HKEY_CURRENT_USER / "SOFTWARE\\\\Python").getParent()` is 
+		u"HKEY_CURRENT_USER / \\"SOFTWARE\\""."""
+		return self.parent

@@ -6,6 +6,12 @@ Here's why:
   long
 * REG_LINK - Returns a binary str containing raw UCS-2, not an unicode
 
+Overview
+========
+
+Notes:
+* Registry paths are normalized to backslashes
+
 Modules
 =======
 There are several modules defined by pyreg:
@@ -48,6 +54,9 @@ has several methods:
     sam. See
     <http://msdn.microsoft.com/library/en-us/sysinfo/base/registry_key_security_and_access_rights.asp>
     for details.
+* akey.getParent()
+    Returns the true parent (ie, not necesarily the key used to create it) of 
+    akey.
 
 The Key class also has several operators as shortcuts to 
 using Key.values and Key.keys. They are:
@@ -196,8 +205,8 @@ You may also allow your class to be created upon retrieval. To do this, you
 must:
 1. Define __from_registry__ as a class-callable type (ie, staticmethod or 
    classmethod), which returns an instance of your class
-2. Add your type to the _registryDataClasses dictionary, the key being the type
-   constant used by _winreg
+2. Add your type to the pyreg.types._registryDataClasses dictionary, the key 
+   being the type constant used by _winreg
 
 Note that if you inherit from a native type already handled, and can accept 
 registry data in your constructor, you may inherit from RegistryType as well.
