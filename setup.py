@@ -4,18 +4,18 @@ DEBUG = True
 
 from distutils.core import setup
 
-ver='0.2'
+ver='0.3'
 
 setup(name="pyreg",
        version=ver,
        description="Registry wrapper classes",
        author="Jamie Bliss",
        author_email="astronouth7303+pyreg@gmail.com",
-       url="http://endeavour.zapto.org/astro73/pyreg/",
-       download_url="http://endeavour.zapto.org/astro73/pyreg/pyreg-"+ver+".zip",
+       url="http://www.astro73.com/download/pyreg/",
+       download_url="http://www.astro73.com/download/pyreg/pyreg-"+ver+".zip",
        long_description="""``pyreg`` defines classes to wrap ``_winreg`` in a more friendly interface,
 including demunging data. See
-http://endeavour.zapto.org/astro73/pyreg/readme.php for help or try
+http://www.astro73.com/download/pyreg/readme.html for help or try
 
 >>> import pyreg
 >>> help(pyreg)

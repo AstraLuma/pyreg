@@ -2,7 +2,7 @@ VER=${shell python setup.py -V}
 DIST=dist/pyreg-${VER}.win32.zip dist/pyreg-${VER}.win32.exe
 README=src/README.txt
 
-.PHONY : register upload test
+.PHONY : register upload test clean
 
 all : ${DIST} test upload register
 
@@ -19,7 +19,7 @@ dist/pyreg-${VER}.win32.exe : src/* test
 	python setup.py bdist_wininst
 
 upload : ${DIST} ${README} test
-	scp -v ${DIST} ${README} "Astronouth7303@endeavour.zapto.org:/cygdrive/e/var/htdocs/endeavour/astro73/pyreg"
+	scp -v ${DIST} ${README} "astronouth7303@astro73.com:/home/astronouth7303/astro73.com/www/download/pyreg"
 	
 clean :
 	python setup.py clean
