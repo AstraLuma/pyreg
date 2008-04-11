@@ -65,7 +65,7 @@ using Key.values and Key.keys. They are:
     Gets the subkey sub of akey. akey must be a Key object, sub must be a
     string (str or unicode).
 * | - akey|val
-    Gets the value val of akey. akye must be a Key instance, val must be a 
+    Gets the value val of akey. akey must be a Key instance, val must be a 
     string (str or unicode).
 * [] - akey[val]
     Returns a value of akey. val must be a string.

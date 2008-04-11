@@ -3,11 +3,12 @@ pyreg.key - Defines the Key class
 By Jamie Bliss
 Last modified $Date$
 """
+from __future__ import absolute_value
 import _winreg
 import datetime
 import sys
 import UserDict
-from pyreg.types import Binary,DWORD,DWORD_BigEndian,DWORD_LittleEndian,ExpandingString,Link,MultiString,ResourceList,String,rNone,_Registry2Object,_Object2Registry
+from .types import Binary, DWORD, DWORD_BigEndian, DWORD_LittleEndian, ExpandingString, Link, MultiString, ResourceList, String, rNone, _Registry2Object, _Object2Registry
 
 __all__=('Key', 'ValueReference')
 
@@ -37,9 +38,11 @@ class _RegValues(UserDict.DictMixin):
 	"""A dictionary wrapping the values of the key that created it. Don't
 	instantiate yourself, use akey.values. Note that while it is a full
 	dictionary, many of the methods don't make sense (eg, push() and pop())."""
-	__slots__=('parent')
+	__slots__='parent',
 	def __init__(self, parent):
 		self.parent=parent
+	def __del__(self):
+		self.parent = None
 	def __len__(self):
 		"""x.__len__() <==> len(x)
 		
@@ -48,7 +51,7 @@ class _RegValues(UserDict.DictMixin):
 		return info[1]
 	def ref(self, key):
 		"""Returns a reference to the value; see ValueReference."""
-		return ValueReference(self.parent, key)
+		return ValueReference(p, key)
 	def __getitem__(self, key):
 		"""x.__getitem__(y) <==> x[y]
 		
@@ -65,8 +68,8 @@ class _RegValues(UserDict.DictMixin):
 		t = _Object2Registry(value)
 		try: _winreg.SetValueEx(self.parent._handle, key, 0, t[1], t[0])
 		except:
-                    print (self.parent.handle, key, 0, t[1], t[0])
-                    raise
+			print (self.parent._handle, key, 0, t[1], t[0])
+			raise
 	def __delitem__(self, key):
 		"""x.__delitem__(y) <==> del x[y]
 		
@@ -140,6 +143,8 @@ class _RegKeys(UserDict.DictMixin):
 	__slots__=('parent')
 	def __init__(self,parent):
 		self.parent=parent
+	def __del__(self):
+		self.parent = None
 	def __len__(self):
 		"""x.__len__() <==> len(x)
 		
@@ -283,7 +288,8 @@ class Key(object):
 		
 		Ensures that this key is written to disk. Calls _winreg.FlushKey(). See
 		<http://msdn.microsoft.com/library/en-us/sysinfo/base/regflushkey.asp>"""
-		_winreg.FlushKey(self.handle)
+		# Thanks to Shane Geiger for finding this bug.
+		_winreg.FlushKey(self._handle)
 	def loadKey(self, key, file):
 		"""k.loadKey(key, file) -> Key
 		

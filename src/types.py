@@ -33,12 +33,14 @@ class DWORD(long, RegistryType):
 	Encapsulates the REG_DWORD type.
 	Exactly like long, except it is limited to 0-0xFFFFFFFF."""
 	def __new__(cls, x, base=False):
+		if hasattr(x, '__index__'):
+			x = x.__index__()
 		if base is False:
 			inst = super(DWORD, cls).__new__(cls, x)
 		else:
 			inst = super(DWORD, cls).__new__(cls, x, base)
 		if long(inst & 0xFFFFFFFF) != long(inst):
-			inst = DWORD(inst & 0xFFFFFFFF)
+			inst = cls(inst & 0xFFFFFFFF)
 		return inst
 	
 	def __to_registry__(self):
@@ -47,6 +49,9 @@ class DWORD(long, RegistryType):
 			return int(self - 0x100000000)
 		else:
 			return self
+	
+	def __repr__(self):
+		return "%s(%i)" % (type(self).__name__, self)
 	
 	@classmethod
 	def __from_registry__(cls, v):
@@ -106,27 +111,26 @@ class MultiString(list, RegistryType):
 	def __init__(self,seq=None):
 		"""x.__init__(...) initializes x; see x.__class__.__doc__ for signature"""
 		if seq is not None:
-			val = [unicode(i) for i in seq]
-			list.__init__(self, val)
+			val = map(unicode, seq)
+			super(MultiString, list).__init__(self, val)
 		else:
-			list.__init__(self)
+			super(MultiString, list).__init__(self)
 	def __setitem__(self, key, value):
 		"""x.__setitem__(i, y) <==> x[i]=y"""
 		if isinstance(key, slice):
-			seq = [unicode(i) for i in value]
+			seq = map(unicode, value)
 		else:
 			seq = unicode(value)
-		list.__setitem__(self, key, seq)
+		super(MultiString, list).__setitem__(self, key, seq)
 	def __setslice__(self, i, j, sequence):
 		"""x.__setslice__(i, j, y) <==> x[i:j]=y
 
                Use  of negative indices is not supported."""
-		val = [unicode(i) for i in sequence]
-		list.__setslice__(self, i, j, sequence)
+		self.__setitem__(slice(i, j), sequence)
 	def append(self,x):
 		"""L.append(object) -- append object to end"""
 		v = unicode(x)
-		list.append(self,v)
+		super(MultiString,self).append(self,v)
 
 class rNone(Binary):
 	"""MSDN: "No defined value type."
