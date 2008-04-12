@@ -3,7 +3,7 @@ pyreg.key - Defines the Key class
 By Jamie Bliss
 Last modified $Date$
 """
-from __future__ import absolute_value
+from __future__ import absolute_import
 import _winreg
 import datetime
 import sys
@@ -226,12 +226,15 @@ class Key(object):
 		except: pass
 	def __repr__(self):
 		"""x.__repr__() <==> repr(x)"""
-		return "%r/%r" % (self.parent, self.myname)
+		#return "%r/%r" % (self.parent, self.myname)
+		return "<%s %s keys=%s values=%s>" % (type(self).__name__, self.getPath(False), self.keys.keys(), self.values.keys())
+		
 	def __str__(self):
 		"""x.__str__() <==> str(x)
 		
 		Returns the path of this key."""
 		return self.getPath(True)
+	
 	def __div__(self, other):
 		"""x.__div__(y) <==> x/y
 		

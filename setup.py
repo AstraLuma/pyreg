@@ -14,11 +14,15 @@ setup(name="pyreg",
        url="http://www.astro73.com/download/pyreg/",
        download_url="http://www.astro73.com/download/pyreg/pyreg-"+ver+".zip",
        long_description="""``pyreg`` defines classes to wrap ``_winreg`` in a more friendly interface,
-including demunging data. See
-http://www.astro73.com/download/pyreg/readme.html for help or try
+including demunging data. Example:
 
->>> import pyreg
->>> help(pyreg)
+>>> from pyreg import *
+>>> HKEY_LOCAL_MACHINE / 'Software' / 'Python' / 'PythonCore' / '2.5' / 'InstallPath' | None
+u'c:\\Python25\\'
+
+See http://www.astro73.com/download/pyreg/readme.html for help or try
+
+>>> help('pyreg')
 
 You may file bug reports to the author's address.""",
        packages=['pyreg'],

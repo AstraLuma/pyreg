@@ -1,28 +1,34 @@
-VER=${shell python setup.py -V}
-DIST=dist/pyreg-${VER}.win32.zip dist/pyreg-${VER}.win32.exe
+ifeq ($(shell uname),)
+  PYTHON=python
+else
+  PYTHON=wine python
+endif
+
+VER=$(shell $(PYTHON) setup.py -V)
+DIST=dist/pyreg-$(VER).win32.zip dist/pyreg-$(VER).win32.exe
 README=src/README.txt
 
-.PHONY : register upload test clean
+dist : $(DIST)
 
-all : ${DIST} test upload register
+all : $(DIST) test upload register
 
-register : upload ${DIST}
-	python setup.py register
+register : upload $(DIST)
+	$(PYTHON) setup.py register
 	
 test : src/* install
-	python src\\tests\\smoke.py
+	$(PYTHON) src\\tests\\smoke.py
 
 dist/pyreg-${VER}.win32.zip : src/*
-	python setup.py bdist --format=zip
+	$(PYTHON) setup.py bdist --format=zip
 
-dist/pyreg-${VER}.win32.exe : src/* test
-	python setup.py bdist_wininst
+dist/pyreg-${VER}.win32.exe : src/*
+	$(PYTHON) setup.py bdist_wininst
 
-upload : ${DIST} ${README} test
-	scp -v ${DIST} ${README} "astronouth7303@astro73.com:/home/astronouth7303/astro73.com/www/download/pyreg"
-	
 clean :
-	python setup.py clean
+	$(PYTHON) setup.py clean
 
 install : 
-	python setup.py install
+	$(PYTHON) setup.py install
+.PHONY : all register upload test clean dist
+
+include upload.mk
