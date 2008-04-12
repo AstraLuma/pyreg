@@ -7,7 +7,7 @@ endif
 VER=$(shell $(PYTHON) setup.py -V)
 BDIST=dist/pyreg-$(VER).win32.zip dist/pyreg-$(VER).win32.exe
 SDIST=dist/pyreg-$(VER).zip
-README=README.txt
+README=README.txt readme.html
 
 SOURCES=$(wildcard src/*.py src/pyreg/*.py src/pyreg/test/*.py)
 

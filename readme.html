@@ -1,0 +1,342 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+ <head>
+  <title>pyreg Readme</title>
+  <link rel="bookmark" title="Readme" href="http://www.astro73.com/download/pyreg/readme.html" />
+  <link rel="bookmark" title="Download" href="http://www.astro73.com/download/pyreg/" />
+  <style type="text/css">/*<![CDATA[*/
+    div.warning {
+      margin-top: 1em;
+      margin-bottom: 1em;
+      border: solid thin red;
+      padding: 0.3em;
+      padding-left: 1em;
+    }
+    div.warning div {
+      font-size: bigger;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-left: -0.7em;
+    }
+    div.warning p {
+    }
+    pre.python {
+      border: dashed thin gray;
+      background: silver;
+      padding: 0.2em;
+      padding-left: 1em;
+    }
+  /*]]>*/</style>
+ </head>
+ <body>
+  <a id="top" />
+  <h1><a id="pyreg-Readme" href="#pyreg-Readme" title="pyreg Readme"><tt>pyreg</tt> Readme</a></h1>
+  <p>First of all, <tt>_winreg</tt> should die. It has no respect whatsoever of
+     data types. Here's why:</p>
+  <ul>
+   <li><b><tt>REG_DWORD</tt>, <tt>REG_DWORD_LITTLE_ENDIAN</tt></b> &ndash; 
+       Returns a signed <tt>int</tt>, not an unsigned <tt>long</tt>.</li>
+   <li><b><tt>REG_DWORD_BIG_ENDIAN</tt></b> &ndash; Returns a binary 
+       <tt>str</tt> buffer of size 4, not an unsigned <tt>long</tt>.</li>
+   <li><b><tt>REG_LINK</tt></b> &ndash; Returns a binary <tt>str</tt> 
+       containing the raw UCS-2 data, not an <tt>unicode</tt>.</li>
+  </ul>
+  
+  <h2><a id="Modules" href="#Modules" title="Modules">Modules</a></h2>
+  <p>There are several modules defined by pyreg.</p>
+  <dl>
+   <dt><a href="#pyreg"><tt>pyreg</tt></a></dt>
+   <dd>basic, imports all of the others</dd>
+   <dt><a href="#pyreg.key"><tt>pyreg.key</tt></a></dt>
+   <dd>defines the base Key class</dd>
+   <dt><a href="#pyreg.types"><tt>pyreg.types</tt></a></dt>
+   <dd>defines type classes used to wrap the registry's types</dd>
+   <dt><a href="#pyreg.roots"><tt>pyreg.roots</tt></a></dt>
+   <dd>defines HKEY_CURRENT_USER et al</dd>
+  </dl>
+  <p>All classes are self-documented. Meaning all the <tt>__doc__</tt>s are 
+     set. You can use <code>help(pyreg)</code> to read it.</p>
+  
+  <p>Note that strings are always converted to <tt>unicode</tt>. Regular strings
+    (the <tt>str</tt> class) are used for binary buffers.</p>
+  
+  <p>When Python 3 comes out (and maybe Python 2.6), this will change, since 
+     regular strings are all <tt>unicode</tt> objects and binary blobs are 
+     <tt>bytes</tt> objects.</p>
+  
+  <h2><a id="pyreg" href="#pyreg" title="pyreg"><tt>pyreg</tt></a></h2>
+  <p>Mostly imports other modules. Defined here:
+    <ul>
+      <li><a href="#pyreg.types.Binary"><tt>Binary</tt></a></li>
+      <li><a href="#pyreg.types.DWORD"><tt>DWORD</tt></a></li>
+      <li><a href="#pyreg.types.DWORD_BigEndian"><tt>DWORD_BigEndian</tt></a></li>
+      <li><a href="#pyreg.types.DWORD_LittleEndian"><tt>DWORD_LittleEndian</tt></a></li>
+      <li><a href="#pyreg.types.ExpandingString"><tt>ExpandingString</tt></a></li>
+      <li><a href="#pyreg.types.Link"><tt>Link</tt></a></li>
+      <li><a href="#pyreg.types.MultiString"><tt>MultiString</tt></a></li>
+      <li><a href="#pyreg.types.ResourceList"><tt>ResourceList</tt></a></li>
+      <li><a href="#pyreg.types.String"><tt>String</tt></a></li>
+      <li><a href="#pyreg.types.rNone"><tt>rNone</tt></a></li>
+      <li><a href="#pyreg.key.Key"><tt>Key</tt></a></li>
+      <li><a href="#pyreg.roots.HKEY_CLASSES_ROOT"><tt>HKEY_CLASSES_ROOT</tt></a></li>
+      <li><a href="#pyreg.roots.HKEY_CURRENT_CONFIG"><tt>HKEY_CURRENT_CONFIG</tt></a></li>
+      <li><a href="#pyreg.roots.HKEY_CURRENT_USER"><tt>HKEY_CURRENT_USER</tt></a></li>
+      <li><a href="#pyreg.roots.HKEY_HKEY_DYN_DATA"><tt>HKEY_DYN_DATA</tt></a></li>
+      <li><a href="#pyreg.roots.HKEY_LOCAL_MACHINE"><tt>HKEY_LOCAL_MACHINE</tt></a></li>
+      <li><a href="#pyreg.roots.HKEY_PERFORMANCE_DATA"><tt>HKEY_PERFORMANCE_DATA</tt></a></li>
+      <li><a href="#pyreg.roots.HKEY_PERFORMANCE_NLSTEXT"><tt>HKEY_PERFORMANCE_NLSTEXT</tt></a></li>
+      <li><a href="#pyreg.roots.HKEY_PERFORMANCE_TEXT"><tt>HKEY_PERFORMANCE_TEXT</tt></a></li>
+      <li><a href="#pyreg.roots.HKEY_USERS"><tt>HKEY_USERS</tt></a></li>
+      <li><a href="#pyreg/constants"><tt>KEY_ALL_ACCESS</tt></a></li>
+      <li><a href="#pyreg/constants"><tt>KEY_CREATE_LINK</tt></a></li>
+      <li><a href="#pyreg/constants"><tt>KEY_CREATE_SUB_KEY</tt></a></li>
+      <li><a href="#pyreg/constants"><tt>KEY_ENUMERATE_SUB_KEYS</tt></a></li>
+      <li><a href="#pyreg/constants"><tt>KEY_EXECUTE</tt></a></li>
+      <li><a href="#pyreg/constants"><tt>KEY_NOTIFY</tt></a></li>
+      <li><a href="#pyreg/constants"><tt>KEY_QUERY_VALUE</tt></a></li>
+      <li><a href="#pyreg/constants"><tt>KEY_READ</tt></a></li>
+      <li><a href="#pyreg/constants"><tt>KEY_SET_VALUE</tt></a></li>
+      <li><a href="#pyreg/constants"><tt>KEY_WRITE</tt></a></li>
+    </ul>
+  </p>
+  
+  <h3><a id="pyreg/constants" href="#pyreg/constants" title="pyreg/constants"><tt>Constants</tt></a></h3>
+  <p>See 
+     <a href="http://msdn.microsoft.com/library/en-us/sysinfo/base/registry_key_security_and_access_rights.asp">Win32: Registry Key Security and Access Rights</a> 
+     for details.
+  <dl>
+    <dt><tt>KEY_ALL_ACCESS</tt></dt>
+    <dd>"Combines the STANDARD_RIGHTS_REQUIRED, KEY_QUERY_VALUE, KEY_SET_VALUE, 
+        KEY_CREATE_SUB_KEY, KEY_ENUMERATE_SUB_KEYS, KEY_NOTIFY, and 
+        KEY_CREATE_LINK access rights."</dd>
+    <dt><tt>KEY_CREATE_LINK</tt></dt>
+    <dd>"Reserved for system use."</dd>
+    <dt><tt>KEY_CREATE_SUB_KEY</tt></dt>
+    <dd>"Required to create a subkey of a registry key."</dd>
+    <dt><tt>KEY_ENUMERATE_SUB_KEYS</tt></dt>
+    <dd>"Required to enumerate the subkeys of a registry key."</dd>
+    <dt><tt>KEY_EXECUTE</tt></dt>
+    <dd>"Equivalent to KEY_READ."</dd>
+    <dt><tt>KEY_NOTIFY</tt></dt>
+    <dd>"Required to request change notifications for a registry key or for 
+        subkeys of a registry key." (Note that notifications aren't 
+        implemented.)</dd>
+    <dt><tt>KEY_QUERY_VALUE</tt></dt>
+    <dd>"Required to query the values of a registry key."</dd>
+    <dt><tt>KEY_READ</tt></dt>
+    <dd>"Combines the STANDARD_RIGHTS_READ, KEY_QUERY_VALUE, 
+        KEY_ENUMERATE_SUB_KEYS, and KEY_NOTIFY values."</dd>
+    <dt><tt>KEY_SET_VALUE</tt></dt>
+    <dd>"Required to create, delete, or set a registry value."</dd>
+    <dt><tt>KEY_WRITE</tt></dt>
+    <dd>"Combines the STANDARD_RIGHTS_WRITE, KEY_SET_VALUE, and 
+        KEY_CREATE_SUB_KEY access rights."</dd>
+  </dl>
+    <h2><a id="pyreg.key" href="#pyreg.key" title="pyreg.key"><tt>pyreg.key</tt></a></h2>
+  <h3><a id="pyreg.key.Key" href="#pyreg.key.Key" title="pyreg.key.Key"><tt>Key</tt></a></h3>  <p>The <tt>Key</tt> object wraps a registry key in a convenient way. The way 
+     to create a <tt>Key</tt> instance is (example):
+    <pre class="python"><a href="#pyreg.roots">HKEY_CURRENT_USER</a> / 'Software' / 'Python'</pre></p>
+  <p><tt>Key</tt> has several methods:</p>
+    <dl>
+      <dt id="pyreg.key.Key.getPath"><code><var>akey</var>.getPath(<var>abbrev</var>=True)</code></dt>
+      <dd>Returns the path (eg, <code>"HKCU\\Software\\Python 2.5"</code>) of the 
+          key wrapped by <tt><var>akey</var></tt>. If abbrev is <tt>False</tt>, 
+          the full root (eg, <code>"HKEY_CURRENT_USER"</code>) is used.</dd>
+      <dt id="pyreg.key.Key.flush"><code><var>akey</var>.flush()</code></dt>
+      <dd>Calls <tt>_winreg.FlushKey()</tt>. See 
+          <a href="http://msdn.microsoft.com/library/en-us/sysinfo/base/regflushkey.asp">Win32: <tt>RegFlushKey()</tt></a>.</dd>
+      <dt id="pyreg.key.Key.getMTime"><code><var>akey</var>.getMTime()</code></dt>
+      <dd>Gets a 
+          <a href="http://docs.python.org/lib/datetime-datetime.html"><tt>datetime.datetime</tt></a> 
+          representing the time the key was last modified.</dd>
+      <dt id="pyreg.key.Key.loadKey"><code>akey.loadKey(<var>key</var>, <var>file</var>)</code></dt>
+      <dd>Opposite of <a href="#pyreg.key.Key.saveKey"><tt>saveKey()</tt></a>. 
+          Loads subkey key from file file. Only valid on 
+          <tt>HKEY_LOCAL_MACHINE</tt> and <tt>HKEY_USERS</tt>.</dd>
+      <dt id="pyreg.key.Key.saveKey"><code><var>akey</var>.saveKey(<var>filename</var>)</code></dt>
+      <dd>Opposite of <a href="#pyreg.key.Key.loadKey"><tt>loadKey()</tt></a>. Saves the currrent key to file 
+          filename.</dd>
+      <dt id="pyreg.key.Key.openKey"><code><var>akey</var>.openKey(<var>key</var>, <var>sam</var>=131097)</code></dt>
+      <dd>Identical to <code><var>akey</var>.keys[<var>key</var>]</code>, 
+          except an error is generated if the key does not exist. Also allows 
+          you to specify permissions in <tt><var>sam</var></tt>. Use the 
+          <a href="#pyreg/constants"><tt>KEY_*</tt></a> constants for 
+          <tt><var>sam</var></tt>.</dd>
+    </dt>
+  </p>
+
+  <p>The Key class also has several operators as shortcuts to using 
+     <tt>Key.values</tt> and <tt>Key.keys</tt>. They are:
+    <dl>
+      <dt><tt>/</tt> &ndash; <code><var>akey</var>/<var>sub</var></code></dt>
+      <dd>Gets the subkey <tt><var>sub</var></tt> of <tt><var>akey</var></tt>. 
+          <tt><var>akey</var></tt> must be a <tt>Key</tt> object, 
+          <tt><var>sub</var></tt> must be a string (<tt>str</tt> or 
+          <tt>unicode</tt>).</dd>
+      <dt><tt>|</tt> &ndash; <code><var>akey</var>akey|val
+      <dt><tt>[]</tt> &ndash; <code><var>akey</var>[<var>val</var>]</code></dt>
+      <dd>Gets the value <tt><var>val</var></tt> of <tt><var>akey</var></tt>. 
+          <tt><var>akey</var></tt> must be a <tt>Key</tt> instance, 
+          <tt><var>val</var></tt> must be a string (<tt>str</tt> or 
+          <tt>unicode</tt>).</dd>
+      <dt><tt>in</tt> &ndash; <code><var>childkey</var> in <var>akey</var></code></dt>
+      <dd>Tests to see if <tt><var>childkey</var></tt> is a direct descendent of 
+          <tt><var>akey</var></tt>. <tt><var>childkey</var></tt> may be a 
+          <tt>Key</tt> instance or a string. This is not recursive.</dd>
+    </dl>
+  </p>
+
+  <h4><a id="pyreg.key.Key.keys" href="#pyreg.key.Key.keys" title="pyreg.key.Key.keys"><tt>Key.keys</tt></a></h4>
+  <p>The <tt>Key.keys</tt> object is accessable only from a <tt>Key</tt> 
+     instance. It should never be created seperate from a <tt>Key</tt>.</p>
+
+  <p><tt>Key.keys</tt> is a dictionary of the subkeys of its creator 
+     <tt>Key</tt>. Therefore, all its items are also <tt>Key</tt> instances.</p>
+
+  <p><tt>Key.keys</tt> supports all the methods of a dictionary, although many 
+     are inefficient.</p>
+  
+  <p>If a non-existant key is accessed, a new one is created.</p>
+  
+  <p class="technical">(Technical note: <tt>Key.keys</tt> is of the class 
+     <tt>_RegKeys</tt> which should not be instantiated manually. 
+     <tt>_RegKeys</tt> extends <tt>UserDict.DictMixin</tt>, so is not a 
+     pre-generated dict, rather it calls the <tt>_winreg</tt> functions to get 
+     values and such.)</p>
+
+  <h4><a id="pyreg.key.Key.values" href="#pyreg.key.Key.values" title="pyreg.key.Key.values"><tt>Key.values</tt></a></h4>
+  <p>Much like <tt>Key.keys</tt>, except it is for the values of its parent 
+     key. All its items are of one of the classes in <tt>pyreg.types</tt>. It 
+     supports all methods of a dictionary, although some are inefficient.</p>
+  
+  <p>When an non-existant value is accessed, <tt>Key.values</tt> raises a 
+     <tt>KeyError</tt> exception.</p>
+  
+  <p class="technical">(Technical note: Like <tt>Key.keys</tt>, 
+     <tt>Key.values</tt> is of the class <tt>_RegValues</tt>, which is, again, 
+     a subclass of <tt>UserDict.DictMixin</tt>. Follow the same rules as with 
+     <tt>Key.keys</tt>.)</p>
+
+  <h2><a id="pyreg.roots" href="#pyreg.roots" title="pyreg.roots"><tt>pyreg.roots</tt></a></h2>
+  <p><tt>Key</tt> is subclassed to define the registry's roots. Don't use the 
+     classes directly, use these variables instead:
+    <ul>
+      <li><tt>HKEY_CLASSES_ROOT</tt></li>
+      <li><tt>HKEY_CURRENT_CONFIG</tt></li>
+      <li><tt>HKEY_CURRENT_USER</tt></li>
+      <li><tt>HKEY_DYN_DATA</tt></li>
+      <li><tt>HKEY_LOCAL_MACHINE</tt></li>
+      <li><tt>HKEY_PERFORMANCE_DATA</tt></li>
+      <li><tt>HKEY_PERFORMANCE_NLSTEXT</tt></li>
+      <li><tt>HKEY_PERFORMANCE_TEXT</tt></li>
+      <li><tt>HKEY_USERS</tt></li>
+    </ul>
+     Note that not all roots are usable on all versions of Windows. See 
+     <a href="http://msdn.microsoft.com/library/en-us/sysinfo/base/predefined_keys.asp">Win32: Predefined Keys</a> 
+     for details about them.</p>
+
+  <div class="warning">
+    <div>WARNING</div>
+    <p><tt>HKEY_PERFORMANCE_NLSTEXT</tt> and <tt>HKEY_PERFORMANCE_TEXT</tt> 
+       only contain a few values of the type <tt>REG_MULTI_SZ</tt> 
+       (<a href="#pyreg.types.MultiString"><tt>MultiString</tt></tt>). However, 
+       the number of items within those values is the thousands. Use caution 
+       when enumerating.</p>
+  </div>
+
+  <h2><a id="pyreg.types" href="#pyreg.types" title="pyreg.types"><tt>pyreg.types</tt></a></h2>
+  <p>To wrap the registry's types, several classes were written. pyreg also 
+     handles demunging data. (The exact handling is somewhat un-pythonic.)</p>
+
+  <p>(Note: Each class name is followed by the <tt>REG_*</tt> constant it 
+     wraps.)</p>
+
+  <div class="warning">
+    <div>WARNING</div>
+    <p>When storing a <tt>str</tt>, it is converted to a <tt>unicode</tt>. That 
+       is, the following sets a value of the type <tt>REG_SZ</tt>:
+      <pre class="python">HKEY_CURRENT_USER|'mystring' = "spam"</pre>
+       When you wish to store something of <tt>REG_BINARY</tt>, use:
+      <pre class="python">HKEY_CURRENT_USER|'mybinary' = Binary("spam\x01eggs\x01")</pre>
+       (Again, this will change in Python 3.)</p>
+  </div>
+
+  <h3><a id="pyreg.types.Binary" href="#pyreg.types.Binary" title="pyreg.types.Binary"><tt>Binary</tt></a> 
+      &ndash; <tt>REG_BINARY</tt></h3>
+  <p>Behaves similarly to str. In fact, it is a subclass of str that does not 
+     define any methods.</p>
+
+  <h3><a id="pyreg.types.DWORD" href="#pyreg.types.DWORD" title="pyreg.types.DWORD"><tt>DWORD</tt></a> 
+      &ndash; <tt>REG_DWORD</tt></h3>
+  <p>A long, other than that it is limited to the range of an unsigned 32-bit 
+     value. This class enforces C-style number conversions.</p>
+
+  <h3><a id="pyreg.types.DWORD_LittleEndian" href="#pyreg.types.DWORD_LittleEndian" title="pyreg.types.DWORD_LittleEndian"><tt>DWORD_LittleEndian</tt></a> 
+      &ndash; <tt>REG_DWORD_LITTLE_ENDIAN</tt></h3>
+  <p>Identical to <tt>DWORD</tt> (because Windows is a little-endian system).</p>
+
+  <h3><a id="pyreg.types.DWORD_BigEndian" href="#pyreg.types.DWORD_BigEndian" title="pyreg.types.DWORD_BigEndian"><tt>DWORD_BigEndian</tt></a> 
+      &ndash; <tt>REG_DWORD_BIG_ENDIAN</tt></h3>
+  <p>Basically the same as a <tt>DWORD</tt>, except that it is stored in big 
+     endian form in the registry. (Appears as its intended value to scripts.)</p>
+
+  <h3><a id="pyreg.types.ExpandingString" href="#pyreg.types.ExpandingString" title="pyreg.types.ExpandingString"><tt>ExpandingString</tt></a> 
+      &ndash; <tt>REG_EXPAND_SZ</tt></h3>
+  <p>A unicode string that contains enviroment variables (in the form of 
+     <tt>%spam%</tt>).</p>
+
+  <h3><a id="pyreg.types.ExpandingString" href="#pyreg.types.ExpandingString" title="pyreg.types.ExpandingString"><tt>Link</tt></a> 
+      &ndash; <tt>REG_LINK</tt></h3>
+  <p>Note: "Applications should not use this type." (MSDN)</p>
+
+  <p>A unicode string.</p>
+
+  <h3><a id="pyreg.types.ExpandingString" href="#pyreg.types.ExpandingString" title="pyreg.types.ExpandingString"><tt>MultiString</tt></a> 
+      &ndash; <tt>REG_MULTI_SZ</tt></h3>
+  <p>A list of unicode strings. It will only deal with types that can be 
+     converted to a string.</p>
+
+  <h3><a id="pyreg.types.ExpandingString" href="#pyreg.types.ExpandingString" title="pyreg.types.ExpandingString"><tt>rNone</tt></a> 
+      &ndash; <tt>REG_NONE</tt></h3>
+  <p>A value of no defined type; behaves identically to 
+     <a href="#pyreg.types.Binary"><tt>Binary</tt></a>.</p>
+
+  <h3><a id="pyreg.types.ExpandingString" href="#pyreg.types.ExpandingString" title="pyreg.types.ExpandingString"><tt>ResourceList</tt></a> 
+      &ndash; <tt>REG_RESOURCE_LIST</tt></h3>
+  <p>If you know details about this data type, I would like to hear about it. 
+     Until then, it behaves like Binary.</p>
+
+  <h3><a id="pyreg.types.ExpandingString" href="#pyreg.types.ExpandingString" title="pyreg.types.ExpandingString"><tt>String</tt></a> 
+      &ndash; <tt>REG_SZ</tt></h3>
+  <p>A unicode string.</p>
+
+  <h3><a id="pyreg.types/conversion" href="#pyreg.types/conversion" title="pyreg.types/conversion">About data type conversion</a></h3>
+  <p>During the save and load processes, data types are converted to/from a 
+     form that <tt>_winreg</tt> will store correctly, aka (de)munging.</p>
+  
+  <p>You may define your own classes that pyreg can store by either:
+    <ul>
+      <li>Inhieriting from one of the pre-defined types above</li>
+      <li>Defining the <tt>__to_registry__</tt> method</li>
+    </ul>
+  </p>
+  
+  <p>You may also allow your class to be created upon retrieval. To do this, 
+     you must:
+    <ol>
+      <li>Define <tt>__from_registry__</tt> as a class-callable type (ie, 
+          <tt>staticmethod</tt> or <tt>classmethod</tt>), which returns an 
+          instance of your class</li>
+      <li>Add your type to the <tt>pyreg.types._registryDataClasses</tt> 
+          dictionary, the key being the type constant used by <tt>_winreg</tt></li>
+    </ol>
+  </p>
+  
+  <p>Note that if you inherit from a native type already handled, and can 
+     accept registry data in your constructor, you may inherit from 
+     <tt>RegistryType</tt> as well.</p>
+
+<p>Last updated $Date$</p>
+ </body>
+</html>

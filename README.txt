@@ -21,19 +21,88 @@ There are several modules defined by pyreg:
 * pyreg.roots - defines HKEY_CURRENT_USER et al
 
 Note that strings are always converted to unicode. Regular strings (the str 
-class) are used for binary buffers.
+class) are used for binary buffers. (In Python 3, this will change.)
+
+pyreg
+=====
+Mostly imports other modules. Defined here:
+* Binary
+* DWORD
+* DWORD_BigEndian
+* DWORD_LittleEndian
+* ExpandingString
+* Link
+* MultiString
+* ResourceList
+* String
+* rNone
+* Key
+* HKEY_CLASSES_ROOT
+* HKEY_CURRENT_CONFIG
+* HKEY_CURRENT_USER
+* HKEY_DYN_DATA
+* HKEY_LOCAL_MACHINE
+* HKEY_PERFORMANCE_DATA
+* HKEY_PERFORMANCE_NLSTEXT
+* HKEY_PERFORMANCE_TEXT
+* HKEY_USERS
+* KEY_ALL_ACCESS
+* KEY_CREATE_LINK
+* KEY_CREATE_SUB_KEY
+* KEY_ENUMERATE_SUB_KEYS
+* KEY_EXECUTE
+* KEY_NOTIFY
+* KEY_QUERY_VALUE
+* KEY_READ
+* KEY_SET_VALUE
+* KEY_WRITE
+
+Constants
+---------
+See 
+<http://msdn.microsoft.com/library/en-us/sysinfo/base/registry_key_security_and_access_rights.asp> 
+for details.
+
+* KEY_ALL_ACCESS
+    "Combines the STANDARD_RIGHTS_REQUIRED, KEY_QUERY_VALUE, KEY_SET_VALUE, 
+    KEY_CREATE_SUB_KEY, KEY_ENUMERATE_SUB_KEYS, KEY_NOTIFY, and KEY_CREATE_LINK 
+    access rights."
+* KEY_CREATE_LINK
+    "Reserved for system use."
+* KEY_CREATE_SUB_KEY
+    "Required to create a subkey of a registry key."
+* KEY_ENUMERATE_SUB_KEYS
+    "Required to enumerate the subkeys of a registry key."
+* KEY_EXECUTE
+    "Equivalent to KEY_READ."
+* KEY_NOTIFY
+    "Required to request change notifications for a registry key or for subkeys 
+    of a registry key." (Note that notifications aren't implemented.)
+* KEY_QUERY_VALUE
+    "Required to query the values of a registry key."
+* KEY_READ
+    "Combines the STANDARD_RIGHTS_READ, KEY_QUERY_VALUE, 
+    KEY_ENUMERATE_SUB_KEYS, and KEY_NOTIFY values."
+* KEY_SET_VALUE
+    "Required to create, delete, or set a registry value."
+* KEY_WRITE
+    "Combines the STANDARD_RIGHTS_WRITE, KEY_SET_VALUE, and KEY_CREATE_SUB_KEY 
+    access rights." 
 
 pyreg.key
 =========
 
 Key
 ---
-The Key object wraps a registry key in a convenient way. It 
-has several methods:
+The Key object wraps a registry key in a convenient way. The way 
+to create a Key instance is (example):
+  >>> HKEY_CURRENT_USER / 'Software' / 'Python'
+
+Key has several methods:
 * akey.getPath(abbrev=True)
     Returns the path (eg, "HKCU\Software\Python 2.4") of the
     key wrapped by akey. If abbrev is False, the full root 
-    (eg, HKEY_CURRENT_USER) is used.
+    (eg, "HKEY_CURRENT_USER") is used.
 * akey.flush()
     Calls _winreg.FlushKey(). See
     <http://msdn.microsoft.com/library/en-us/sysinfo/base/regflushkey.asp>
@@ -41,8 +110,7 @@ has several methods:
     Gets a datetime.datetime representing the time the key 
     was laste modified.
 * akey.loadKey(key, file)
-    Opposite of saveKey().
-    Loads subkey key from file file. Only valid on 
+    Opposite of saveKey(). Loads subkey key from file file. Only valid on 
     HKEY_LOCAL_MACHINE and HKEY_USERS.
 * akey.saveKey(filename)
     Opposite of loadKey(). Saves the currrent key to file 
@@ -51,15 +119,13 @@ has several methods:
     Identical to akey.keys[key], except an error is 
     generated if the key does not exist. Also allows you to 
     specify permissions in sam. Use the KEY_* constants for 
-    sam. See
-    <http://msdn.microsoft.com/library/en-us/sysinfo/base/registry_key_security_and_access_rights.asp>
-    for details.
+    sam.
 * akey.getParent()
     Returns the true parent (ie, not necesarily the key used to create it) of 
     akey.
 
-The Key class also has several operators as shortcuts to 
-using Key.values and Key.keys. They are:
+The Key class also has several operators as shortcuts to using Key.values and 
+Key.keys. They are:
 
 * / - akey/sub
     Gets the subkey sub of akey. akey must be a Key object, sub must be a
@@ -103,20 +169,6 @@ When an non-existant value is accessed, Key.values raises a KeyError exception.
 which is, again, a subclass of UserDict.DictMixin. Follow the same rules as 
 with Key.keys.)
 
-ValueReference
---------------
-This allows you to refer to a value without actually getting the value. It is
-obtained either by calling Key.values.ref() with the value name, or by creating
-it yourself and passing it the Key and value.
-
-Note that there is no equivelent for keys, since all their data is generated
-anyway.
-
-Operators (aref refers to a ValueReference instance):
-* () - aref()
-    Gets the value (dereferences) of this value. Meaning it calls the original 
-    key and gets the value.
-
 pyreg.roots
 ===========
 Key is subclassed to define the registry's roots. Don't use the classes 
@@ -141,10 +193,17 @@ values numbers in the thousands. Use caution when enumerating.
 
 pyreg.types
 ===========
-To wrap the registry's types, several classes were written. pyreg.types also 
-handles demunging data.
+To wrap the registry's types, several classes were written. pyreg also 
+handles demunging data. (The exact handling is somewhat un-pythonic.)
 
 (Note: Each class name is followed by the REG_* constant it wraps.)
+
+***WARNING***
+When storing a str, it is converted to a unicode. That is, the following sets a 
+value of the type REG_SZ:
+  >>> HKEY_CURRENT_USER|'mystring' = "spam"
+When you wish to store something of REG_BINARY, use:
+  >>> HKEY_CURRENT_USER|'mybinary' = Binary("spam\x01eggs\x01")
 
 Binary - REG_BINARY
 ------
@@ -154,6 +213,7 @@ any methods.
 DWORD - REG_DWORD
 -----
 A long, other than that it is limited to the range of an unsigned 32-bit value.
+This class enforces C-style number conversions.
 
 DWORD_LittleEndian - REG_DWORD_LITTLE_ENDIAN
 ------------------
@@ -162,11 +222,11 @@ Identical to DWORD (because Windows is a little-endian system).
 DWORD_BigEndian - REG_DWORD_BIG_ENDIAN
 ---------------
 Basically the same as a DWORD, except that it is stored in big endian form in 
-the registry. (It appears in the correct order to scripts.)
+the registry. (Appears as its intended value to scripts.)
 
 ExpandingString - REG_EXPAND_SZ
 ---------------
-A unicode string that contains enviroment variables (%foo%).
+A unicode string that contains enviroment variables (in the form of %spam%).
 
 Link - REG_LINK
 ----
@@ -190,16 +250,16 @@ then, it behaves like Binary.
 
 String - REG_SZ
 ------
-A unicode string. (Strings are always Unicode due to _winreg implementation, 
-although if this changes, I am likely to force unicode anyway.)
+A unicode string.
 
 About data type conversion
 --------------------------
 During the save and load processes, data types are converted to/from a form that
-_winreg will store correctly, aka (de)munging). You may define your own 
-classes that pyreg can store by either:
+_winreg will store correctly, aka (de)munging. 
+
+You may define your own classes that pyreg can store by either:
 * Inheriting from one of the pre-defined types above
-* Defining the __to_registry__ function
+* Defining the __to_registry__ method
 
 You may also allow your class to be created upon retrieval. To do this, you 
 must:
