@@ -23,7 +23,7 @@ register : upload $(BDIST)
 	$(PYTHON) setup.py register
 
 test : $(SOURCES) install
-	$(PYTHON) src\\pyreg\\tests\\smoke.py
+	$(PYTHON) tests\\smoke.py
 
 dist/pyreg-${VER}.win32.zip : $(SOURCES)
 	$(PYTHON) setup.py bdist --format=zip

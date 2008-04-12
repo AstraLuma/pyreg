@@ -1,3 +1,4 @@
 include setup.py README.txt MANIFEST.in Makefile
 recursive-include src *.py
+recursive-include tests *.py
 global-exclude .svn *~ *.pyc *.pyo
