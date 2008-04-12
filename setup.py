@@ -36,5 +36,6 @@ You may file bug reports to the author's address.""",
                     'Operating System :: Microsoft :: Windows',
                     'Programming Language :: Python',
                     'Topic :: Software Development :: Libraries :: Python Modules',
-                    'Topic :: System']
+                    'Topic :: System',
+                    'Topic :: System :: Systems Administration']
       )
