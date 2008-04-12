@@ -1,0 +1,3 @@
+include setup.py README.txt MANIFEST.in Makefile
+recursive-include src *.py
+global-exclude .svn *~ *.pyc *.pyo

@@ -5,23 +5,33 @@ else
 endif
 
 VER=$(shell $(PYTHON) setup.py -V)
-DIST=dist/pyreg-$(VER).win32.zip dist/pyreg-$(VER).win32.exe
+BDIST=dist/pyreg-$(VER).win32.zip dist/pyreg-$(VER).win32.exe
+SDIST=dist/pyreg-$(VER).zip
 README=README.txt
 
-dist : $(DIST)
+SOURCES=$(wildcard src/*.py src/pyreg/*.py src/pyreg/test/*.py)
 
-all : $(DIST) test upload register
+dist : bdist sdist
 
-register : upload $(DIST)
+bdist : $(BDIST)
+
+sdist : $(SDIST)
+
+all : $(BDIST) test upload register
+
+register : upload $(BDIST)
 	$(PYTHON) setup.py register
-	
-test : src/* install
+
+test : $(SOURCES) install
 	$(PYTHON) src\\tests\\smoke.py
 
-dist/pyreg-${VER}.win32.zip : src/*
+dist/pyreg-${VER}.win32.zip : $(SOURCES)
 	$(PYTHON) setup.py bdist --format=zip
 
-dist/pyreg-${VER}.win32.exe : src/*
+dist/pyreg-${VER}.zip : $(SOURCES) setup.py MANIFEST.in README.txt Makefile
+	$(PYTHON) setup.py sdist
+
+dist/pyreg-${VER}.win32.exe : $(SOURCES)
 	$(PYTHON) setup.py bdist_wininst
 
 clean :
@@ -29,6 +39,6 @@ clean :
 
 install : 
 	$(PYTHON) setup.py install
-.PHONY : all register upload test clean dist
+.PHONY : all register upload test clean dist sdist bdist
 
 include upload.mk
