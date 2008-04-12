@@ -112,16 +112,16 @@ class MultiString(list, RegistryType):
 		"""x.__init__(...) initializes x; see x.__class__.__doc__ for signature"""
 		if seq is not None:
 			val = map(unicode, seq)
-			super(MultiString, list).__init__(self, val)
+			super(MultiString, self).__init__(val)
 		else:
-			super(MultiString, list).__init__(self)
+			super(MultiString, self).__init__()
 	def __setitem__(self, key, value):
 		"""x.__setitem__(i, y) <==> x[i]=y"""
 		if isinstance(key, slice):
 			seq = map(unicode, value)
 		else:
 			seq = unicode(value)
-		super(MultiString, list).__setitem__(self, key, seq)
+		super(MultiString, self).__setitem__(key, seq)
 	def __setslice__(self, i, j, sequence):
 		"""x.__setslice__(i, j, y) <==> x[i:j]=y
 
@@ -130,7 +130,7 @@ class MultiString(list, RegistryType):
 	def append(self,x):
 		"""L.append(object) -- append object to end"""
 		v = unicode(x)
-		super(MultiString,self).append(self,v)
+		super(MultiString,self).append(v)
 
 class rNone(Binary):
 	"""MSDN: "No defined value type."

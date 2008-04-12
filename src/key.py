@@ -20,19 +20,19 @@ __all__=('Key', 'ValueReference')
 # * RegGetValue
 # * RegQueryReflectionKey
 
-class ValueReference(object):
-	"""A reference to a value, allows you to pass a reference to a registry value.
-	
-	There aren't any meta-data functions because they would be as expensive as just dereferencing."""
-	parent = None
-	value = None
-	def __init__(self, parent, value):
-		self.parent = parent
-		self.value = value
-	
-	def __call__(self):
-		"""Get the actual value that this references."""
-		return self.parent.values[self.value]
+#class ValueReference(object):
+#	"""A reference to a value, allows you to pass a reference to a registry value.
+#	
+#	There aren't any meta-data functions because they would be as expensive as just dereferencing."""
+#	parent = None
+#	value = None
+#	def __init__(self, parent, value):
+#		self.parent = parent
+#		self.value = value
+#	
+#	def __call__(self):
+#		"""Get the actual value that this references."""
+#		return self.parent.values[self.value]
 
 class _RegValues(UserDict.DictMixin):
 	"""A dictionary wrapping the values of the key that created it. Don't
@@ -49,9 +49,9 @@ class _RegValues(UserDict.DictMixin):
 		Returns the number of values in this key."""
 		info = _winreg.QueryInfoKey(self.parent._handle)
 		return info[1]
-	def ref(self, key):
-		"""Returns a reference to the value; see ValueReference."""
-		return ValueReference(p, key)
+#	def ref(self, key):
+#		"""Returns a reference to the value; see ValueReference."""
+#		return ValueReference(p, key)
 	def __getitem__(self, key):
 		"""x.__getitem__(y) <==> x[y]
 		
@@ -226,8 +226,8 @@ class Key(object):
 		except: pass
 	def __repr__(self):
 		"""x.__repr__() <==> repr(x)"""
-		#return "%r/%r" % (self.parent, self.myname)
-		return "<%s %s keys=%s values=%s>" % (type(self).__name__, self.getPath(False), self.keys.keys(), self.values.keys())
+		return "%r/%r" % (self.parent, self.myname)
+		#return "<%s %s keys=%s values=%s>" % (type(self).__name__, self.getPath(False), self.keys.keys(), self.values.keys())
 		
 	def __str__(self):
 		"""x.__str__() <==> str(x)
