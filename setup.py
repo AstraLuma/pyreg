@@ -26,7 +26,7 @@ See http://www.astro73.com/download/pyreg/readme.html for help or try
 
 You may file bug reports to the author's address.""",
        packages=['pyreg'],
-       package_dir={'pyreg': 'src'},
+       package_dir={'pyreg': 'src/pyreg'},
        platforms=['Microsoft Windows'],
        license='GNU General Public License',
 #       requires='_winreg',

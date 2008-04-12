@@ -6,7 +6,7 @@ endif
 
 VER=$(shell $(PYTHON) setup.py -V)
 DIST=dist/pyreg-$(VER).win32.zip dist/pyreg-$(VER).win32.exe
-README=src/README.txt
+README=README.txt
 
 dist : $(DIST)
 
