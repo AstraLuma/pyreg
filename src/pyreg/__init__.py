@@ -3,16 +3,16 @@ pyreg - Defines classes to interface with the registry.
 By Jamie Bliss
 Last modified $Date$
 """
+from __future__ import absolute_import
 import _winreg
-from pyreg.types import Binary,DWORD,DWORD_BigEndian,DWORD_LittleEndian,ExpandingString,Link,MultiString,ResourceList,String,rNone
-from pyreg.key import Key
-from pyreg.roots import HKEY_CLASSES_ROOT,HKEY_CURRENT_CONFIG,HKEY_CURRENT_USER,HKEY_DYN_DATA,HKEY_LOCAL_MACHINE,HKEY_PERFORMANCE_DATA,HKEY_PERFORMANCE_NLSTEXT,HKEY_PERFORMANCE_TEXT,HKEY_USERS
-__all__=(
-		 'Binary','DWORD','DWORD_BigEndian','DWORD_LittleEndian','ExpandingString','Link','MultiString','ResourceList','String','rNone',
-		 'Key',
-		 'HKEY_CLASSES_ROOT','HKEY_CURRENT_CONFIG','HKEY_CURRENT_USER','HKEY_DYN_DATA','HKEY_LOCAL_MACHINE','HKEY_PERFORMANCE_DATA','HKEY_PERFORMANCE_NLSTEXT','HKEY_PERFORMANCE_TEXT','HKEY_USERS',
-		 'KEY_ALL_ACCESS','KEY_CREATE_LINK','KEY_CREATE_SUB_KEY','KEY_ENUMERATE_SUB_KEYS','KEY_EXECUTE','KEY_NOTIFY','KEY_QUERY_VALUE','KEY_READ','KEY_SET_VALUE','KEY_WRITE'
-		 )
+from .types import Binary,DWORD,DWORD_BigEndian,DWORD_LittleEndian,ExpandingString,Link,MultiString,ResourceList,String,rNone
+from .key import Key
+from .roots import HKEY_CLASSES_ROOT,HKEY_CURRENT_CONFIG,HKEY_CURRENT_USER,HKEY_DYN_DATA,HKEY_LOCAL_MACHINE,HKEY_PERFORMANCE_DATA,HKEY_PERFORMANCE_NLSTEXT,HKEY_PERFORMANCE_TEXT,HKEY_USERS
+__all__ = (
+	'Binary', 'DWORD', 'DWORD_BigEndian', 'DWORD_LittleEndian', 'ExpandingString', 'Link', 'MultiString', 'ResourceList', 'String', 'rNone', 'Key',
+		'HKEY_CLASSES_ROOT', 'HKEY_CURRENT_CONFIG', 'HKEY_CURRENT_USER', 'HKEY_DYN_DATA', 'HKEY_LOCAL_MACHINE', 'HKEY_PERFORMANCE_DATA', 'HKEY_PERFORMANCE_NLSTEXT', 'HKEY_PERFORMANCE_TEXT', 'HKEY_USERS',
+		'KEY_ALL_ACCESS', 'KEY_CREATE_LINK', 'KEY_CREATE_SUB_KEY', 'KEY_ENUMERATE_SUB_KEYS', 'KEY_EXECUTE', 'KEY_NOTIFY', 'KEY_QUERY_VALUE', 'KEY_READ', 'KEY_SET_VALUE', 'KEY_WRITE'
+		)
 
 ##class pyregException(Exception):
 ##	"""An error occuried in the pyreg module."""

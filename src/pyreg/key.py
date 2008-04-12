@@ -4,13 +4,10 @@ By Jamie Bliss
 Last modified $Date$
 """
 from __future__ import absolute_import
-import _winreg
-import datetime
-import sys
-import UserDict
+import _winreg, datetime, sys, UserDict
 from .types import Binary, DWORD, DWORD_BigEndian, DWORD_LittleEndian, ExpandingString, Link, MultiString, ResourceList, String, rNone, _Registry2Object, _Object2Registry
 
-__all__=('Key', 'ValueReference')
+__all__= 'Key',
 
 # These functions are new (to me):
 # * GetSystemRegistryQuota

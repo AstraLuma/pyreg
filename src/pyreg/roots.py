@@ -3,8 +3,9 @@ pyreg.roots - Defines the registry's roots (predefined keys)
 By Jamie Bliss
 Last modified $Date$
 """
+from __future__ import absolute_import
 import _winreg
-from pyreg.key import Key
+from .key import Key
 
 # _winreg doesn't define two roots:
 #define HKEY_PERFORMANCE_TEXT       (( HKEY ) (ULONG_PTR)((LONG)0x80000050) )
@@ -12,7 +13,9 @@ _winreg.HKEY_PERFORMANCE_TEXT = -2147483568
 #define HKEY_PERFORMANCE_NLSTEXT    (( HKEY ) (ULONG_PTR)((LONG)0x80000060) )
 _winreg.HKEY_PERFORMANCE_NLSTEXT = -2147483552
 
-__all__ = ('HKEY_CLASSES_ROOT','HKEY_CURRENT_CONFIG','HKEY_CURRENT_USER','HKEY_DYN_DATA','HKEY_LOCAL_MACHINE','HKEY_PERFORMANCE_DATA','HKEY_USERS')
+__all__ = ('HKEY_CLASSES_ROOT', 'HKEY_CURRENT_CONFIG', 'HKEY_CURRENT_USER', 
+	'HKEY_DYN_DATA', 'HKEY_LOCAL_MACHINE', 'HKEY_PERFORMANCE_DATA', 
+	'HKEY_USERS')
 
 class _HKeyRoot(Key):
 	"""A subclass of Key to encapsulate HKEY_*."""

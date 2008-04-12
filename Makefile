@@ -1,10 +1,10 @@
 ifeq ($(shell uname),)
   PYTHON=python
 else
-  PYTHON=wine python
+  PYTHON=WINEDEBUG=fixme-all wine python
 endif
 
-VER=$(shell $(PYTHON) setup.py -V)
+VER:=$(shell $(PYTHON) setup.py -V)
 BDIST=dist/pyreg-$(VER).win32.zip dist/pyreg-$(VER).win32.exe
 SDIST=dist/pyreg-$(VER).zip
 README=README.txt readme.html
@@ -23,7 +23,7 @@ register : upload $(BDIST)
 	$(PYTHON) setup.py register
 
 test : $(SOURCES) install
-	$(PYTHON) src\\tests\\smoke.py
+	$(PYTHON) src\\pyreg\\tests\\smoke.py
 
 dist/pyreg-${VER}.win32.zip : $(SOURCES)
 	$(PYTHON) setup.py bdist --format=zip
