@@ -1,7 +1,8 @@
 ifeq ($(shell uname),)
   PYTHON=python
 else
-  PYTHON=WINEDEBUG=fixme-all wine python
+#WINEDEBUG=fixme-all 
+  PYTHON=wine python
 endif
 
 VER:=$(shell $(PYTHON) setup.py -V)
@@ -17,10 +18,11 @@ bdist : $(BDIST)
 
 sdist : $(SDIST)
 
-all : $(BDIST) test upload register
+release : dist test upload register
+	svn ps --non-interactive svn:needs-lock "*" $(BDIST) $(SDIST)
 
 register : upload $(BDIST)
-	$(PYTHON) setup.py register
+	python setup.py register
 
 test : $(SOURCES) install
 	$(PYTHON) tests\\smoke.py
@@ -39,6 +41,6 @@ clean :
 
 install : 
 	$(PYTHON) setup.py install
-.PHONY : all register upload test clean dist sdist bdist
+.PHONY : release register upload test clean dist sdist bdist
 
 include upload.mk

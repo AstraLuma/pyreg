@@ -12,7 +12,7 @@ setup(name="pyreg",
        author="Jamie Bliss",
        author_email="astronouth7303+pyreg@gmail.com",
        url="http://www.astro73.com/download/pyreg/",
-       download_url="http://www.astro73.com/download/pyreg/pyreg-"+ver+".zip",
+       download_url="http://www.astro73.com/download/pyreg/pyreg-"+ver+".win32.zip",
        long_description="""``pyreg`` defines classes to wrap ``_winreg`` in a more friendly interface,
 including demunging data. Example:
 
