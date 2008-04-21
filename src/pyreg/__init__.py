@@ -3,11 +3,12 @@ pyreg - Defines classes to interface with the registry.
 By Jamie Bliss
 Last modified $Date$
 """
+# Search for #Py3k in the source to find areas that need work when Python3 comes out
 from __future__ import absolute_import
 import _winreg
-from .types import Binary,DWORD,DWORD_BigEndian,DWORD_LittleEndian,ExpandingString,Link,MultiString,ResourceList,String,rNone
+from .types import Binary, DWORD, DWORD_BigEndian, DWORD_LittleEndian, ExpandingString, Link, MultiString, ResourceList, String, rNone
 from .key import Key
-from .roots import HKEY_CLASSES_ROOT,HKEY_CURRENT_CONFIG,HKEY_CURRENT_USER,HKEY_DYN_DATA,HKEY_LOCAL_MACHINE,HKEY_PERFORMANCE_DATA,HKEY_PERFORMANCE_NLSTEXT,HKEY_PERFORMANCE_TEXT,HKEY_USERS
+from .roots import HKEY_CLASSES_ROOT, HKEY_CURRENT_CONFIG, HKEY_CURRENT_USER, HKEY_DYN_DATA, HKEY_LOCAL_MACHINE, HKEY_PERFORMANCE_DATA, HKEY_PERFORMANCE_NLSTEXT, HKEY_PERFORMANCE_TEXT, HKEY_USERS
 __all__ = (
 	'Binary', 'DWORD', 'DWORD_BigEndian', 'DWORD_LittleEndian', 'ExpandingString', 'Link', 'MultiString', 'ResourceList', 'String', 'rNone', 'Key',
 		'HKEY_CLASSES_ROOT', 'HKEY_CURRENT_CONFIG', 'HKEY_CURRENT_USER', 'HKEY_DYN_DATA', 'HKEY_LOCAL_MACHINE', 'HKEY_PERFORMANCE_DATA', 'HKEY_PERFORMANCE_NLSTEXT', 'HKEY_PERFORMANCE_TEXT', 'HKEY_USERS',

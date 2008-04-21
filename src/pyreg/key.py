@@ -3,6 +3,7 @@ pyreg.key - Defines the Key class
 By Jamie Bliss
 Last modified $Date$
 """
+# Search for #Py3k in the source to find areas that need work when Python3 comes out
 from __future__ import absolute_import
 import _winreg, datetime, sys, UserDict
 from .types import Binary, DWORD, DWORD_BigEndian, DWORD_LittleEndian, ExpandingString, Link, MultiString, ResourceList, String, rNone, _Registry2Object, _Object2Registry
@@ -72,7 +73,7 @@ class _RegValues(UserDict.DictMixin):
 		
 		Deletes the given value."""
 		_winreg.DeleteValue(self.parent._handle, key)
-	def keys(self):
+	def keys(self): #Py3k
 		"""k.keys() -> list
 		
 		Returns a list of subkeys.
@@ -92,20 +93,19 @@ class _RegValues(UserDict.DictMixin):
 				break
 			else:
 				yield key[0]
-	def iteritems(self):
+	def iteritems(self): #Py3k
 		"""x.iteritems() -> generator
 		
 		Returns a generator that enumerates the names & contents of the values."""
 		n = 0
-		key = ""
 		while True:
 			try:
-				key = _winreg.EnumValue(self.parent._handle, n)
+				name, data, typ = _winreg.EnumValue(self.parent._handle, n)
 				n += 1
 			except EnvironmentError:
 				break
 			else:
-				yield (key[0], _Registry2Object(key[2],key[1]))
+				yield name, _Registry2Object(typ,data)
 	def __contains__(self, item):
 		"""v.__contains__(s) <==> s in v
 		
@@ -120,7 +120,7 @@ class _RegValues(UserDict.DictMixin):
 	def copy(self):
 		"""D.copy() -> a shallow copy of D"""
 		value = {}
-		for i in self.iteritems(): value[i[0]] = i[1]
+		for i in self.iteritems(): value[i[0]] = i[1] #Py3k
 		return value
 	def update(self, dict, **kwargs):
 		"""D.update(E, **F) -> None.  Upadte D from E and F: for k in E: D[k] = E[k]
@@ -158,7 +158,7 @@ class _RegKeys(UserDict.DictMixin):
 		
 		Deletes the given subkey."""
 		_winreg.DeleteKey(self.parent._handle, key)
-	def keys(self):
+	def keys(self): #Py3k
 		"""k.keys() -> list
 		
 		Returns a list of subkeys.

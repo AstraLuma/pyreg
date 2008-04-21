@@ -3,12 +3,32 @@ pyreg.types - Defines classes to wrap the registry's types
 By Jamie Bliss
 Last modified $Date$
 """
+# This module tries to do the "right thing" in python 2 and 3
 from __future__ import absolute_import
-import _winreg
+import _winreg, sys
 from types import GeneratorType as _GeneratorType
 __all__ = ('Binary', 'DWORD', 'DWORD_BigEndian', 'DWORD_LittleEndian', 
 	'ExpandingString', 'Link', 'MultiString', 'ResourceList', 'String', 
 	'rNone')
+
+# Double check this in #Py3k
+if sys.hexversion >= 0x3000000: # 3.0
+	# New 3k-style
+	binstr = bytes
+	txtstr = str
+	str2reg = str
+	bin2reg = bytes, memoryview, bytearray
+elif sys.hexversion >= 0x2060000: # 2.6
+	binstr = bytes # bytes == str
+	txtstr = unicode
+	str2reg = basestring
+	bin2reg = buffer, memoryview, bytearray
+else: # <= 2.5
+	# Old style
+	binstr = str
+	txtstr = unicode
+	str2reg = basestring
+	bin2reg = buffer
 
 class RegistryType(object):
 	"""
@@ -24,12 +44,12 @@ class RegistryType(object):
 
 	def __to_registry__(self):
 		"""rt.__to_registry__() -> something
-		Converts this instance to something _winreg understands. Returns either 
-		an instance of a class in the  in the _registryDataClasses.
+		Converts this instance to something _winreg understands. Returns an 
+		instance of a class in this module.
 		"""
 		return self
 
-class Binary(str, RegistryType):
+class Binary(binstr, RegistryType):
 	"""MSDN: "Binary data in any form."
 	
 	Encapsulates the REG_BINARY type; based on str.
@@ -95,7 +115,7 @@ class DWORD_BigEndian(DWORD):
 		rtn = chr((self >> 24) & 0xFF) + rtn
 		return rtn
 
-class ExpandingString(unicode, RegistryType):
+class ExpandingString(txtstr, RegistryType):
 	"""MDSN: "A null-terminated string that contains unexpanded references to environment variables (for example, "%PATH%"). It will be a Unicode or ANSI string depending on whether you use the Unicode or ANSI functions. To expand the environment variable references, use the ExpandEnvironmentStrings function."
 
 	Encapsulates REG_EXPAND_SZ, based on unicode.
@@ -103,7 +123,7 @@ class ExpandingString(unicode, RegistryType):
 	pass
 
 
-class Link(unicode, RegistryType):
+class Link(txtstr, RegistryType):
 	"""MSDN: "A Unicode symbolic link. Used internally; applications should not use this type."
 	
 	Encapsulates REG_LINK, based on unicode.
@@ -161,12 +181,14 @@ class ResourceList(Binary):
 	"""
 	pass
 
-class String(unicode, RegistryType):
+class String(txtstr, RegistryType):
 	"""MDSN: "A null-terminated string. It will be a Unicode or ANSI string, depending on whether you use the Unicode or ANSI functions."
 
 	Encapsulates REG_SZ, based on unicode.
 	"""
 	pass
+
+class 
 
 _registryDataClasses = {
 	_winreg.REG_BINARY : Binary,
@@ -182,7 +204,10 @@ _registryDataClasses = {
 }
 """A dictionary linking the registry data type constants (keys) to the classes that handle them (values)."""
 
-_dict_index = lambda d, v: d.keys()[d.values().index(v)] ## There's gotta be a better way to do that
+def _dict_index(d, val):
+	for k,v in d.items():
+		if v == val:
+			return k
 
 def _Registry2Object(t,v):
 	"""_Registry2Object(t,v) -> object
@@ -208,7 +233,7 @@ def _Object2Registry(v):
 	* None -> null rNone
 	* bool -> DWORD (-1 or 0)
 	"""
-	for __aNumberIDontUseButNeedToTrackThisLoopWith in range(0, 2):
+	for _ in range(0, 2):
 		## A known type
 		if v.__class__ in _registryDataClasses.values():
 			t = _dict_index(_registryDataClasses, v.__class__)
@@ -217,19 +242,17 @@ def _Object2Registry(v):
 			v = v.__to_registry__()
 		## These are conversions from native types
 		## Must be last so that inheritance trees don't screw it up
-		elif isinstance(v, basestring):
+		elif isinstance(v, str2reg):
 			return _Object2Registry(String(v))
-		elif ( isinstance(v, list) or isinstance(v, tuple) or isinstance(v, set) or
-				isinstance(v, enumerate) or isinstance(v, frozenset) or
-				isinstance(v, _GeneratorType) ):
-			return _Object2Registry(MultiString(v))
-		elif isinstance(v, buffer):
+		elif isinstance(v, bin2reg):
 			return _Object2Registry(Binary(v))
+		elif hasattr(v, '__getitem__'):
+			return _Object2Registry(MultiString(v))
 		elif isinstance(v, long) or isinstance(v, int):
 			return (DWORD(v).__to_registry__(), _winreg.REG_DWORD)
-		## These types don't cleanly convert to another type
 		elif v is None:
 			return ('', _winreg.REG_NONE)
+		## These types don't cleanly convert to another type
 		elif isinstance(v, bool):
 			if v: return (0xFFFFFFFF, _winreg.REG_DWORD)
 			else: return (0, _winreg.REG_DWORD)

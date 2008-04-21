@@ -3,6 +3,7 @@ pyreg.roots - Defines the registry's roots (predefined keys)
 By Jamie Bliss
 Last modified $Date$
 """
+# Search for #Py3k in the source to find areas that need work when Python3 comes out
 from __future__ import absolute_import
 import _winreg
 from .key import Key
@@ -18,12 +19,16 @@ __all__ = ('HKEY_CLASSES_ROOT', 'HKEY_CURRENT_CONFIG', 'HKEY_CURRENT_USER',
 	'HKEY_USERS')
 
 class _HKeyRoot(Key):
-	"""A subclass of Key to encapsulate HKEY_*."""
+	"""
+	A subclass of Key to encapsulate HKEY_*.
+	"""
 	def __repr__(self):
 		return self.getPath(False)
 
 class _HKeyClassesRoot(_HKeyRoot):
-	"""A subclass of Key to encapsulate HKEY_CLASSES_ROOT."""
+	"""
+	A subclass of Key to encapsulate HKEY_CLASSES_ROOT.
+	"""
 	def getPath(self, abbrev=True):
 		if abbrev:
 			return "HKCR"
@@ -32,7 +37,9 @@ class _HKeyClassesRoot(_HKeyRoot):
 HKEY_CLASSES_ROOT = _HKeyClassesRoot(hkey=_winreg.HKEY_CLASSES_ROOT)
 
 class _HKeyCurrentConfig(_HKeyRoot):
-	"""A subclass of Key to encapsulate HKEY_CURRENT_CONFIG."""
+	"""
+	A subclass of Key to encapsulate HKEY_CURRENT_CONFIG.
+	"""
 	def getPath(self, abbrev=True):
 		if abbrev:
 			return "HKCC"
@@ -41,7 +48,9 @@ class _HKeyCurrentConfig(_HKeyRoot):
 HKEY_CURRENT_CONFIG = _HKeyCurrentConfig(hkey=_winreg.HKEY_CURRENT_CONFIG)
 
 class _HKeyCurrentUser(_HKeyRoot):
-	"""A subclass of Key to encapsulate HKEY_CURRENT_USER."""
+	"""
+	A subclass of Key to encapsulate HKEY_CURRENT_USER.
+	"""
 	def getPath(self, abbrev=True):
 		if abbrev:
 			return "HKCU"
@@ -50,7 +59,9 @@ class _HKeyCurrentUser(_HKeyRoot):
 HKEY_CURRENT_USER = _HKeyCurrentUser(hkey=_winreg.HKEY_CURRENT_USER)
 
 class _HKeyDynData(_HKeyRoot):
-	"""A subclass of Key to encapsulate HKEY_DYN_DATA."""
+	"""
+	A subclass of Key to encapsulate HKEY_DYN_DATA.
+	"""
 	def getPath(self, abbrev=True):
 		if (abbrev):
 			return "HKDD"
@@ -68,7 +79,9 @@ class _HKeyLocalMachine(_HKeyRoot):
 HKEY_LOCAL_MACHINE = _HKeyLocalMachine(hkey=_winreg.HKEY_LOCAL_MACHINE)
 
 class _HKeyPerformanceData(_HKeyRoot):
-	"""A subclass of Key to encapsulate HKEY_PERFORMANCE_DATA."""
+	"""
+	A subclass of Key to encapsulate HKEY_PERFORMANCE_DATA.
+	"""
 	def getPath(self, abbrev=True):
 		if abbrev:
 			return "HKPD"
@@ -81,7 +94,9 @@ HKEY_PERFORMANCE_DATA = _HKeyPerformanceData(hkey=_winreg.HKEY_PERFORMANCE_DATA)
 # Screw it.
 
 class _HKeyPerformanceNLSText(_HKeyRoot):
-	"""A subclass of Key to encapsulate HKEY_PERFORMANCE_NLSTEXT."""
+	"""
+	A subclass of Key to encapsulate HKEY_PERFORMANCE_NLSTEXT.
+	"""
 	def getPath(self, abbrev=True):
 		if abbrev:
 			return "HKPN"
@@ -90,7 +105,9 @@ class _HKeyPerformanceNLSText(_HKeyRoot):
 HKEY_PERFORMANCE_NLSTEXT = _HKeyPerformanceNLSText(hkey=_winreg.HKEY_PERFORMANCE_NLSTEXT)
 
 class _HKeyPerformanceText(_HKeyRoot):
-	"""A subclass of Key to encapsulate HKEY_PERFORMANCE_TEXT."""
+	"""
+	A subclass of Key to encapsulate HKEY_PERFORMANCE_TEXT.
+	"""
 	def getPath(self, abbrev=True):
 		if abbrev:
 			return "HKPT"
@@ -99,7 +116,9 @@ class _HKeyPerformanceText(_HKeyRoot):
 HKEY_PERFORMANCE_TEXT = _HKeyPerformanceNLSText(hkey=_winreg.HKEY_PERFORMANCE_TEXT)
 
 class _HKeyUsers(_HKeyRoot):
-	"""A subclass of Key to encapsulate HKEY_USERS."""
+	"""
+	A subclass of Key to encapsulate HKEY_USERS.
+	"""
 	def getPath(self, abbrev=True):
 		if abbrev:
 			return "HKU"
